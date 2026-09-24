@@ -6,11 +6,11 @@ A fast, distraction-free trivia app built with React. Pick a category (or a mixe
 
 | Role | Responsibility | Contributor | Suggested branch |
 |---|---|---|---|
-| 1. Team Lead | Repo, Git workflow, README, deployment, final integration | [Name](https://github.com/username) | `docs/readme` |
-| 2. API & Data Engineer | Open Trivia DB fetch layer, data hooks, loading/error states | [Name](https://github.com/username) | `feature/api-hooks` |
-| 3. Quiz Logic & State Engineer | Quiz flow, scoring, answer feedback, ScoreContext | [Name](https://github.com/username) | `feature/quiz-logic` |
-| 4. Routing & Views Engineer | Routes, page components, navigation | [Name](https://github.com/username) | `feature/routing-pages` |
-| 5. UI/UX, QA & Presentation Lead | Styling, responsive layout, testing, slides and video | [Name](https://github.com/username) | `feature/styling` |
+| 1. Team Lead | Repo, Git workflow, README, deployment, final integration | [Eddie](https://github.com/username) | `docs/readme` |
+| 2. API & Data Engineer | Open Trivia DB fetch layer, data hooks, loading/error states | [Emmanuel](https://github.com/username) | `feature/api-hooks` |
+| 3. Quiz Logic & State Engineer | Quiz flow, scoring, answer feedback, ScoreContext | [Austin](https://github.com/username) | `feature/quiz-logic` |
+| 4. Routing & Views Engineer | Routes, page components, navigation | [Gloria](https://github.com/username) | `feature/routing-pages` |
+| 5. UI/UX, QA & Presentation Lead | Styling, responsive layout, testing, slides and video | [Sandra](https://github.com/username) | `feature/styling` |
 
 ## Getting started
 
