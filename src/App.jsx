@@ -5,7 +5,7 @@ import { ScoreProvider } from './context/ScoreContext' // manages quiz scores
 import NavBar from './components/NavBar' // gets navigation bar component
 
 // Import page components
-import Homepage from './pages/HomePage' 
+import HomePage from './pages/HomePage' 
 import QuizPage from './pages/QuizPage'
 import ResultsPage from './pages/ResultsPage'
 import ScoreboardPage from './pages/ScoreboardPage'
@@ -20,7 +20,7 @@ function App() {
         <Routes> {/* Map each URL path to its page component*/} 
         <Route path="/" element={<HomePage />} /> 
         <Route path="/quiz" element={<QuizPage />} />
-        <Route path="/results" element={<ResultPage />} />
+        <Route path="/results" element={<ResultsPage />} />
         <Route path="/scoreboard" element={<ScoreboardPage />} />
         </Routes>
       </div>     
