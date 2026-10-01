@@ -21,3 +21,13 @@ export function shuffle(items) {
   }
   return copy;
 }
+
+// Builds the answer choices for one question.
+// True/false always shows "True" then "False" so the buttons never swap;
+// multiple-choice answers are shuffled so the right one isn't always first.
+export function buildAnswerOptions(question) {
+  if (question.type === "boolean") {
+    return ["True", "False"];
+  }
+  return shuffle([question.correctAnswer, ...question.incorrectAnswers]);
+}
