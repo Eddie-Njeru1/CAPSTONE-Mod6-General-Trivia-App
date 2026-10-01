@@ -1,9 +1,8 @@
 import { Link } from 'react-router-dom'
+import { useScore } from '../context/useScore'
 
 function ResultsPage() {
-  // Placeholder values — will be replaced with real data from ScoreContext (Austin's file)
-  const score = 0
-  const totalQuestions = 0
+  const { score, totalQuestions, points } = useScore()
 
   return (
     <section>
@@ -11,6 +10,7 @@ function ResultsPage() {
       <p>
         You scored {score} out of {totalQuestions}
       </p>
+      <p>Points earned: {points}</p>
 
       <div>
         <Link to="/">Play Again</Link>
