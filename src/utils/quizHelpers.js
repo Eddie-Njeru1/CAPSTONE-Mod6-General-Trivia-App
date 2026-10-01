@@ -31,3 +31,11 @@ export function buildAnswerOptions(question) {
   }
   return shuffle([question.correctAnswer, ...question.incorrectAnswers]);
 }
+
+// Streak bonus: answering several in a row correctly multiplies the points.
+// 3-4 in a row = x1.5, 5 or more = x2, otherwise no bonus.
+export function getStreakMultiplier(streak) {
+  if (streak >= 5) return 2;
+  if (streak >= 3) return 1.5;
+  return 1;
+}
