@@ -4,6 +4,8 @@ function Feedback({
   isCorrect,
   correctAnswer,
   pointsEarned = 0,
+  streak = 0,
+  multiplier = 1,
   onNext,
   isLastQuestion = false,
 }) {
@@ -18,6 +20,12 @@ function Feedback({
 
       {isCorrect && pointsEarned > 0 && (
         <p className="feedback__points">+{pointsEarned} points</p>
+      )}
+
+      {isCorrect && multiplier > 1 && (
+        <p className="feedback__streak">
+          🔥 {streak} in a row! ×{multiplier} bonus
+        </p>
       )}
 
       {!isCorrect && (
