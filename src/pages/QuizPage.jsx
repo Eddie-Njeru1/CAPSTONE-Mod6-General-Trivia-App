@@ -73,6 +73,7 @@ function QuizPage() {
   if (loading || questions.length === 0) {
     return (
       <section className="quiz-page quiz-page--loading">
+        <div className="loading-spinner" aria-hidden="true"></div>
         <p>Loading questions…</p>
       </section>
     );
