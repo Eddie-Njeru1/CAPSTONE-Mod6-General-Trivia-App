@@ -3,6 +3,12 @@ const API_BASE_URL = "https://opentdb.com";
 async function fetchJson(url) {
   const response = await fetch(url);
 
+  if (response.status === 429) {
+    throw new Error(
+      "Trivia API rate limit reached. Please wait a few seconds before trying again."
+    );
+  }
+
   if (!response.ok) {
     throw new Error(`API request failed with status ${response.status}`);
   }
