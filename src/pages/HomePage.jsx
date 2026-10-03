@@ -1,18 +1,17 @@
 import { Link } from 'react-router-dom'
 import CategoryCard from '../components/CategoryCard'
-
-// Temporary fake data — replace with real data from useCategories() once Emmanuel's hook is ready.
-// Real hook usage will likely look like:
-// const { data: categories, loading, error } = useCategories()
-const fakeCategories = [
-  { id: 9, name: 'General Knowledge' },
-  { id: 21, name: 'Sports' },
-  { id: 23, name: 'History' },
-  { id: 17, name: 'Science & Nature' },
-]
+import { useCategories } from '../hooks/useCategories'
 
 function HomePage() {
-  const categories = fakeCategories
+  const { categories, loading, error } = useCategories()
+
+  if (loading) {
+    return <p>Loading categories...</p>
+  }
+
+  if (error) {
+    return <p>Something went wrong: {error}</p>
+  }
 
   return (
     <section>
@@ -31,4 +30,4 @@ function HomePage() {
   )
 }
 
-export default HomePage
+export default HomePage 
