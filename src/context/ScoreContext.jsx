@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { ScoreContext } from "./useScore";
-import { getPointsFor } from "../utils/quizHelpers";
+import { getPointsFor, getStreakMultiplier } from "../utils/quizHelpers";
 
-// localStorage key for past rounds 
+// localStorage key for past rounds (Phase 1 has no backend yet).
 const HISTORY_KEY = "trivia-score-history";
 const MAX_HISTORY = 20;
 
@@ -20,9 +20,12 @@ function loadHistory() {
 export function ScoreProvider({ children }) {
   // score = correct answers this round (shown on ResultsPage)
   const [score, setScore] = useState(0);
-  // points = reward points this round, weighted by difficulty
+  // points = reward points this round, weighted by difficulty and streak
   const [points, setPoints] = useState(0);
   const [totalQuestions, setTotalQuestions] = useState(0);
+  // streak = correct answers in a row right now; bestStreak = longest this round
+  const [streak, setStreak] = useState(0);
+  const [bestStreak, setBestStreak] = useState(0);
   // past rounds, shaped { category, score, total } for ScoreboardPage
   const [history, setHistory] = useState(loadHistory);
 
@@ -39,14 +42,29 @@ export function ScoreProvider({ children }) {
   function startRound(numberOfQuestions) {
     setScore(0);
     setPoints(0);
+    setStreak(0);
+    setBestStreak(0);
     setTotalQuestions(numberOfQuestions);
   }
 
-  // Call once per answered question.
+  // Call once per answered question. Returns what this answer earned,
+  // so the Feedback panel can show the points and the streak.
   function recordAnswer(isCorrect, difficulty) {
-    if (!isCorrect) return;
+    if (!isCorrect) {
+      setStreak(0);
+      return { points: 0, streak: 0, multiplier: 1 };
+    }
+
+    const newStreak = streak + 1;
+    const multiplier = getStreakMultiplier(newStreak);
+    const earned = Math.round(getPointsFor(difficulty) * multiplier);
+
     setScore((prev) => prev + 1);
-    setPoints((prev) => prev + getPointsFor(difficulty));
+    setPoints((prev) => prev + earned);
+    setStreak(newStreak);
+    setBestStreak((prev) => Math.max(prev, newStreak));
+
+    return { points: earned, streak: newStreak, multiplier };
   }
 
   // Saves the finished round. Call from its own click (e.g. "See results"),
@@ -59,6 +77,7 @@ export function ScoreProvider({ children }) {
       score,
       total: totalQuestions,
       points,
+      bestStreak,
     };
     setHistory((prev) => [round, ...prev].slice(0, MAX_HISTORY));
   }
@@ -67,6 +86,8 @@ export function ScoreProvider({ children }) {
     score,
     points,
     totalQuestions,
+    streak,
+    bestStreak,
     history,
     startRound,
     recordAnswer,

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useQuestions } from "../hooks/useQuestions";
 import { useScore } from "../context/useScore";
-import { buildAnswerOptions, getPointsFor } from "../utils/quizHelpers";
+import { buildAnswerOptions } from "../utils/quizHelpers";
 import QuestionCard from "../components/QuestionCard";
 import Feedback from "../components/Feedback";
 
@@ -26,6 +26,8 @@ function QuizPage() {
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
+  // What the last answer earned: { points, streak, multiplier }
+  const [lastResult, setLastResult] = useState(null);
 
   // Remembers which category we last fetched for. React's StrictMode runs
   // effects twice in development; without this guard we'd send two requests
@@ -49,6 +51,7 @@ function QuizPage() {
   function handleRetry() {
     setCurrentIndex(0);
     setSelectedAnswer(null);
+    setLastResult(null);
     startRound(QUESTIONS_PER_ROUND);
     refetch();
   }
@@ -83,10 +86,11 @@ function QuizPage() {
   function handleSelect(answer) {
     if (answered) return; // ignore double-clicks
     setSelectedAnswer(answer);
-    recordAnswer(
+    const result = recordAnswer(
       answer === currentQuestion.correctAnswer,
       currentQuestion.difficulty
     );
+    setLastResult(result);
   }
 
   function handleNext() {
@@ -97,6 +101,7 @@ function QuizPage() {
     }
     setCurrentIndex((prev) => prev + 1);
     setSelectedAnswer(null);
+    setLastResult(null);
   }
 
   return (
@@ -114,7 +119,9 @@ function QuizPage() {
         <Feedback
           isCorrect={isCorrect}
           correctAnswer={currentQuestion.correctAnswer}
-          pointsEarned={isCorrect ? getPointsFor(currentQuestion.difficulty) : 0}
+          pointsEarned={lastResult?.points ?? 0}
+          streak={lastResult?.streak ?? 0}
+          multiplier={lastResult?.multiplier ?? 1}
           onNext={handleNext}
           isLastQuestion={isLastQuestion}
         />
