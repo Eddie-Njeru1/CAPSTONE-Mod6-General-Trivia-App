@@ -5,22 +5,54 @@ function ScoreboardPage() {
   const { history } = useScore()
 
   return (
-    <section>
-      <h1>Scoreboard</h1>
+    <section className="scoreboard-page">
+      <div className="scoreboard-header">
+        <p className="scoreboard-header__eyebrow">Your progress</p>
+        <h1 className="scoreboard-header__title">Scoreboard</h1>
+        <p className="scoreboard-header__description">
+          Keep track of your previous trivia rounds and scores.
+        </p>
+      </div>
 
       {history.length === 0 ? (
-        <p>No past scores yet. Play a round to see your history here.</p>
+        <div className="scoreboard-empty">
+          <h2>No scores yet</h2>
+          <p>
+            Play a round of trivia to start building your score history.
+          </p>
+
+          <Link to="/" className="scoreboard-action scoreboard-action--primary">
+            Play a Quiz
+          </Link>
+        </div>
       ) : (
-        <ul>
-          {history.map((entry) => (
-            <li key={entry.id}>
-              {entry.category} — {entry.score}/{entry.total}
-            </li>
-          ))}
-        </ul>
+        <div className="scoreboard-card">
+          <div className="scoreboard-card__header">
+            <span>Category</span>
+            <span>Score</span>
+          </div>
+
+          <ul className="scoreboard-list">
+            {history.map((entry) => (
+              <li className="scoreboard-item" key={entry.id}>
+                <span className="scoreboard-item__category">
+                  {entry.category}
+                </span>
+
+                <span className="scoreboard-item__score">
+                  {entry.score}/{entry.total}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
 
-      <Link to="/">Back to Home</Link>
+      <div className="scoreboard-footer">
+        <Link to="/" className="scoreboard-action scoreboard-action--secondary">
+          Back to Home
+        </Link>
+      </div>
     </section>
   )
 }
