@@ -1084,3 +1084,143 @@ img {
     width: 100%;
   }
 }
+
+/* Home Page Hero */
+
+.home-page {
+  min-height: calc(100vh - 80px);
+  padding: 4rem 1rem 5rem;
+}
+
+.home-page__hero {
+  position: relative;
+  max-width: 850px;
+  margin: 0 auto 4rem;
+  padding: 3.5rem 2rem;
+  text-align: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.home-page__hero::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+}
+
+.home-page__eyebrow {
+  margin-bottom: 0.75rem;
+  color: var(--primary);
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.home-page__title {
+  margin-bottom: 1rem;
+  color: var(--text);
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+}
+
+.home-page__description {
+  max-width: 580px;
+  margin: 0 auto 2rem;
+  color: var(--text-light);
+  font-size: 1.1rem;
+  line-height: 1.7;
+}
+
+.mixed-quiz {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 1.25rem 1.5rem;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white;
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 25px rgba(108, 99, 255, 0.25);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mixed-quiz:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 30px rgba(108, 99, 255, 0.3);
+}
+
+.mixed-quiz__title {
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
+.mixed-quiz__description {
+  margin-top: 0.25rem;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.9rem;
+}
+
+/* Reusable loading state */
+.loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+.loader__message {
+  color: var(--text-light);
+  font-weight: 600;
+}
+
+/* Reusable error state */
+.error-message {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: var(--surface);
+  border: 2px solid var(--error);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  text-align: center;
+}
+
+.error-message__title {
+  margin-bottom: 0.75rem;
+  color: var(--error);
+  font-size: 1.5rem;
+}
+
+.error-message__text {
+  margin-bottom: 1.25rem;
+  color: var(--text-light);
+}
+
+.error-message__retry {
+  padding: 0.7rem 1.25rem;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--primary);
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.error-message__retry:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+}
