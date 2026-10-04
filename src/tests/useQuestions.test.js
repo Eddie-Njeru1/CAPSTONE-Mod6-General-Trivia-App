@@ -14,7 +14,7 @@ describe("useQuestions", () => { // runs before each test to clear previous mock
     beforeEach(() => {
         vi.clearAllMocks();
     });
-});
+
 
 it("does not fetch automatically on mount", () => { // check that the questions are not fetched automatically when the hook mounts 
     const { result } = renderHook(() => useQuestions(9, 10)); 
@@ -57,4 +57,5 @@ it("stores an error message if refetch fails", async () => { // checks that the 
     expect(result.current.error).toBe("Rate limit exceeded"); // confirms the error message was stored 
     expect(result.current.questions).toEqual([]); // confirm no questions were stored
     expect(result.current.loading).toBe(false); // confirm loading has finished 
-}); 
+    }); 
+});
