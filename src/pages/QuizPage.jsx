@@ -5,6 +5,8 @@ import { useScore } from "../context/useScore";
 import { buildAnswerOptions } from "../utils/quizHelpers";
 import QuestionCard from "../components/QuestionCard";
 import Feedback from "../components/Feedback";
+import Loader from "../components/Loader";
+import ErrorMessage from "../components/ErrorMessage";
 
 // The API returns exactly this many questions, or an error if it can't.
 const QUESTIONS_PER_ROUND = 10;
@@ -56,13 +58,12 @@ function QuizPage() {
     refetch();
   }
 
+  // Shared ErrorMessage component: shows the API's friendly message
+  // and a "Try again" button wired to handleRetry.
   if (error) {
     return (
       <section className="quiz-page quiz-page--error">
-        <p>Sorry, we couldn't load questions: {error}</p>
-        <button type="button" onClick={handleRetry}>
-          Try again
-        </button>
+        <ErrorMessage message={error} onRetry={handleRetry} />
         <Link to="/">Back to categories</Link>
       </section>
     );
@@ -73,7 +74,7 @@ function QuizPage() {
   if (loading || questions.length === 0) {
     return (
       <section className="quiz-page quiz-page--loading">
-        <p>Loading questions…</p>
+        <Loader message="Loading questions…" />
       </section>
     );
   }
