@@ -14,7 +14,7 @@ describe("useCategories", () => { // runs before each test to clear previous moc
     beforeEach(() => {
         vi.clearAllMocks();
     });
-});
+
 
 it("starts in a loading state", () => { // check that the hook starts in a loading state with no data or error 
     fetchCategories.mockReturnValue(new Promise(() => {})); // keeps request pending
@@ -42,5 +42,6 @@ it("stores an error message if the API call fails", async () => { // checks that
     await waitFor(() => expect(result.current.loading).toBe(false)); // waits for request to finish
     expect(result.current.error).toBe("Network down"); // confirms the error message was stored 
     expect(result.current.categories).toEqual([]); // confirm no categories wee stored
+    });
 });
 
