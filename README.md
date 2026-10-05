@@ -44,8 +44,9 @@ The app has no database. Aall state lives in React, with one piece persisted to 
 - `points` — reward points for the current round, weighted by question difficulty
 - `totalQuestions` — the size of the current round
 - `history` — an array of past rounds (`{ category, score, total, points }`), capped at the 20 most recent and saved to `localStorage` so it survives a page refresh
-
+- ScoreContext also tracks streak and bestStreak, and each saved round includes bestStreak, id and date (not just category, score, total, points).
 Any component can read or update this through the `useScore()` hook rather than passing score data down through props.
+
 
 ## Prerequisites
 
@@ -135,6 +136,7 @@ Every push and pull request into `development` or `main` also runs through a Git
 - Scores and round history are stored in the browser's local storage rather than a backend, so they're tied to one device and don't follow a user anywhere. A real backend and user accounts are introduced in Phase 2 and 3 of the capstone.
 - Narrower categories can occasionally return fewer questions than requested; the app plays the round with whatever comes back rather than padding it out.
 - No end-to-end tests are included. The automated suite covers key components and hooks, with full user flows verified manually.
+- Refreshing mid-quiz restarts the round, and switching categories quickly can hit the API rate limit ("Try again" fixes it). Will be addressed.
 
 ## Contributors
 
