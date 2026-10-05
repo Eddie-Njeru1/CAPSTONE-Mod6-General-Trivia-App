@@ -87,7 +87,7 @@ npm run dev
 
 The app runs at http://localhost:5173.
 
-A live deployed version is also available at: <remember to add once deployed>
+A live deployed version is also available at: <https://capstone-mod6-general-trivia-app.vercel.app/>
 
 (Hosted on Vercel, deploying automatically from the `main` branch.)
 
