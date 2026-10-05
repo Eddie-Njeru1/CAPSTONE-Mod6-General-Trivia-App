@@ -1,0 +1,61 @@
+# CI (Continuous Integration) workflow for this project.
+# Automatically checks every push and pull request so broken code
+# can't land on development or main without being noticed.
+name: CI
+
+# When this workflow runs:
+# - on every push to development or main
+# - on every pull request targeting development or main
+# This means a PR gets checked before it's even merged, and the
+# target branch gets checked again right after the merge happens.
+on:
+  push:
+    branches: [development, main]
+  pull_request:
+    branches: [development, main]
+
+jobs:
+  # A single job that installs, lints, tests, and builds the project,
+  # in that order — cheapest/fastest checks first, so a bad PR fails
+  # quickly instead of waiting through a full test run first.
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Pulls this repo's code onto the runner. Every workflow needs
+      # this as its first step — nothing else can run without it.
+      - name: Check out the repo
+        uses: actions/checkout@v4
+
+      # Installs Node.js on the runner. Version 22 matches what the
+      # project's dependencies (React 19, Vite 8, ESLint 10) expect.
+      # cache: 'npm' speeds up future runs by reusing downloaded
+      # packages instead of fetching them from scratch every time.
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      # npm ci (not npm install) installs exactly what's locked in
+      # package-lock.json and fails if it's out of sync with
+      # package.json. This guarantees the same dependency versions
+      # every single run, which matters for CI reliability.
+      - name: Install dependencies
+        run: npm ci
+
+      # Runs ESLint via the project's own "lint" script, using the
+      # same config everyone runs locally — so a pass here means a
+      # pass on any teammate's machine too.
+      - name: Lint
+        run: npm run lint
+
+      # Runs the Vitest suite via the project's "test" script.
+      - name: Run tests
+        run: npm test
+
+      # Confirms the app actually builds for production. This catches
+      # issues lint and tests might miss, like a broken import that
+      # only fails at build time.
+      - name: Build
+        run: npm run build
