@@ -59,3 +59,4 @@ jobs:
       # only fails at build time.
       - name: Build
         run: npm run build
+        
