@@ -141,7 +141,7 @@ Every push and pull request into `development` or `main` also runs through a Git
 | Role | Responsibility | Contributor |
 |---|---|---|
 | Team Lead | Repo, Git workflow, vitest CI/CD, README, deployment | [Eddie Njeru](https://github.com/Eddie-Njeru1) |
-| API & Data | Open Trivia DB integration, data hooks | [Emmanuel Cheruiyot](https://github.com/username) |
-| Quiz Logic & State | Quiz flow, scoring, streaks | [Austin Atogo](https://github.com/username) |
-| Routing & Views | Pages and navigation | [Gloria Chebet](https://github.com/username) |
-| UI/UX & QA | Styling | [Sandra Keeru](https://github.com/username) |
+| API & Data | Open Trivia DB integration, data hooks | [Emmanuel Cheruiyot](https://github.com/emmanuelcheruiyot4-oss) |
+| Quiz Logic & State | Quiz flow, scoring, streaks | [Austin Atogo](https://github.com/austinatogo1) |
+| Routing & Views | Pages and navigation | [Gloria Chebet](https://github.com/Gloria-Chebet1) |
+| UI/UX & QA | Styling | [Sandra Keeru](https://github.com/keerusandra) |
