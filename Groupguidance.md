@@ -6,11 +6,11 @@ A fast, distraction-free trivia app built with React. Pick a category (or a mixe
 
 | Role | Responsibility | Contributor | Suggested branch |
 |---|---|---|---|
-| 1. Team Lead | Repo, Git workflow, README, deployment, final integration | [Eddie](https://github.com/username) | `feature/entry-points` `feature/ci-workflow` `feature/tests` |
-| 2. API & Data Engineer | Open Trivia DB fetch layer, data hooks, loading/error states | [Emmanuel](https://github.com/username) | `feature/api-hooks` |
-| 3. Quiz Logic & State Engineer | Quiz flow, scoring, answer feedback, ScoreContext | [Austin](https://github.com/username) | `feature/quiz-logic` |
-| 4. Routing & Views Engineer | Routes, page components, navigation | [Gloria](https://github.com/username) | `feature/routing-pages` |
-| 5. UI/UX, QA & Presentation Lead | Styling, responsive layout, testing, slides and video | [Sandra](https://github.com/username) | `feature/styling` |
+| 1. Team Lead | Repo, Git workflow, README, deployment, final integration | [Eddie Njeru](https://github.com/Eddie-Njeru1)  | `feature/entry-points` `feature/ci-workflow` `feature/tests` |
+| 2. API & Data Engineer | Open Trivia DB fetch layer, data hooks, loading/error states |  [Emmanuel Cheruiyot](https://github.com/emmanuelcheruiyot4-oss) | `feature/api-hooks` |
+| 3. Quiz Logic & State Engineer | Quiz flow, scoring, answer feedback, ScoreContext |  [Austin Atogo](https://github.com/austinatogo1)  | `feature/quiz-logic` |
+| 4. Routing & Views Engineer | Routes, page components, navigation | [Gloria Chebet](https://github.com/Gloria-Chebet1) | `feature/routing-pages` |
+| 5. UI/UX, QA & Presentation Lead | Styling, responsive layout, testing, slides and video | [Sandra Keeru](https://github.com/keerusandra) | `feature/styling` |
 
 ## Getting started
 
