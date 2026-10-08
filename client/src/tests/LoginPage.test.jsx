@@ -1,1 +1,0 @@
-/* globals describe, it, expect, beforeEach, afterEach */
