@@ -1,3 +1,1 @@
-/* eslint-env jest */
-
-it.todo("...") // this is a placeholder until you write the test file.
+/* globals describe, it, expect, beforeEach, afterEach */
