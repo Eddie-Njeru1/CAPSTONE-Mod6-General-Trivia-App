@@ -21,6 +21,13 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
+    # The React app now lives in client/, so every "run:" step below
+    # executes inside that folder. (This setting does not affect
+    # "uses:" steps such as checkout and setup-node.)
+    defaults:
+      run:
+        working-directory: client
+
     steps:
       # Pulls this repo's code onto the runner. Every workflow needs
       # this as its first step — nothing else can run without it.
@@ -31,11 +38,14 @@ jobs:
       # project's dependencies (React 19, Vite 8, ESLint 10) expect.
       # cache: 'npm' speeds up future runs by reusing downloaded
       # packages instead of fetching them from scratch every time.
+      # cache-dependency-path tells it where package-lock.json is now,
+      # since it moved into client/.
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: 'npm'
+          cache-dependency-path: client/package-lock.json
 
       # npm ci (not npm install) installs exactly what's locked in
       # package-lock.json and fails if it's out of sync with
@@ -59,4 +69,3 @@ jobs:
       # only fails at build time.
       - name: Build
         run: npm run build
-        

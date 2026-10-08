@@ -29,7 +29,7 @@ A full-stack trivia application built with **React** and **Flask + PostgreSQL**.
 │   ├── vite.config.js       # Vite/Vitest config + /api proxy to Flask
 │   └── src/
 │       ├── components/      # NavBar, ProtectedRoute, Resource* components, ...
-│       ├── context/         # AuthContext.js, ScoreContext.js
+│       ├── context/         # AuthContext.js, ScoreContext.jsx
 │       ├── pages/           # DashboardPage, LoginPage, SignupPage, ...
 │       ├── services/        # api.js (Axios instance)
 │       └── tests/           # Vitest tests
@@ -54,7 +54,7 @@ A full-stack trivia application built with **React** and **Flask + PostgreSQL**.
 |---|---|
 | Git | `git --version` |
 | Node.js (LTS) and npm | `node --version` and `npm --version` |
-| Python 3 | `python3 --version` |
+| Python 3.14 | `python3 --version` |
 | pipenv | `pipenv --version` |
 | PostgreSQL | `psql --version` (installed in Setup, step 2) |
 
@@ -115,9 +115,18 @@ psql postgres -c "CREATE DATABASE trivia_dev OWNER trivia_user;"
 
 ```bash
 cd server
-pipenv install --dev            # installs all backend and test dependencies
+pipenv install --dev            # installs everything listed in Pipfile / Pipfile.lock
 cp .env.example .env            # then edit .env (see below)
 ```
+
+`server/Pipfile` and `server/Pipfile.lock` are committed, so everyone installs the same package versions. Confirm the install worked:
+
+```bash
+pipenv run python -c "import flask, flask_sqlalchemy, flask_migrate, flask_bcrypt, flask_jwt_extended, marshmallow, psycopg2, dotenv, requests; print('dependencies OK')"
+pipenv run pytest --version     # should print the pytest version
+```
+
+If `pipenv install --dev` installs nothing, or you see `No module named 'flask'`, your `Pipfile` has no packages. Go back to step 1 and pull the latest `development`, then run the install again.
 
 Edit `server/.env`:
 
@@ -184,6 +193,13 @@ cd server && pipenv run flask run --port 5555 --debug   # terminal 1
 cd client && npm run dev                                 # terminal 2
 ```
 
+After pulling new changes from `development`, reinstall if dependencies changed:
+
+```bash
+cd server && pipenv install --dev    # when Pipfile or Pipfile.lock changed
+cd client && npm install             # when package.json or package-lock.json changed
+```
+
 ## Team roles and files
 
 | Member | Role | Source files | Test files |
@@ -202,6 +218,8 @@ Only the owner edits a file. To request a change in someone else's file, comment
 - Pull the latest `main` and `development` before starting (Setup, step 1), then create a feature branch from `development`: `git checkout -b feature/<area>-<short-name>`.
 - Commit small and often, with clear messages (`feat:`, `fix:`, `test:`, `docs:`, `chore:`).
 - Open a pull request into `development`. Do not push directly to `development` or `main`.
+- Adding a backend dependency: run `pipenv install <package>` inside `server/` (add `--dev` for test tools) and commit **both** `Pipfile` and `Pipfile.lock`.
+- Adding a frontend dependency: run `npm install <package>` inside `client/` and commit **both** `package.json` and `package-lock.json`.
 - Delete your branch after it is merged.
 
 ## Troubleshooting
@@ -211,6 +229,8 @@ Only the owner edits a file. To request a change in someone else's file, comment
 | `connection refused` to PostgreSQL | The database is not running. WSL2: `sudo service postgresql start` |
 | `password authentication failed` | The password in `server/.env` must match the one used in `CREATE USER` |
 | `Either SQLALCHEMY_DATABASE_URI or SQLALCHEMY_BINDS needs to be set` | `server/.env` is missing. Run `cp .env.example .env` inside `server/` |
+| `ModuleNotFoundError: No module named 'flask'` (or any Flask extension) | Dependencies are not installed. Pull the latest `development` (step 1), check that `server/Pipfile` lists packages under `[packages]`, then run `cd server && pipenv install --dev` and start Flask with `pipenv run` |
+| `Could not locate a Flask application` | Run the command from inside `server/`. `app.py` must define `create_app`; if it is still empty, that file has not been merged yet, so pull the latest `development` |
 | `ModuleNotFoundError: No module named 'models'` (or `app`, `config`) | Run backend commands from inside `server/`, using `pipenv run` |
 | `apt update` ends with `No module named 'apt_pkg'` | The package lists still refreshed; only a command-not-found hook failed. Run the `apt install` line on its own. To remove the error, check `/usr/bin/python3 --version`: it should be the Ubuntu system Python (3.12 on Ubuntu 24.04); if not, run `sudo update-alternatives --config python3` and pick it |
 | `pg_config executable not found` while installing | `sudo apt install libpq-dev`, then run `pipenv install --dev` again |
