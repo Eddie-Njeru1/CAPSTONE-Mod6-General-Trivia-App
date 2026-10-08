@@ -75,10 +75,10 @@ cd CAPSTONE-Mod6-General-Trivia-App
 git status                      # commit or stash any local changes first
 git fetch origin                # download the latest branches from GitHub
 
-git checkout main
+git switch main
 git pull origin main            # update main
 
-git checkout development
+git switch development
 git pull origin development     # update development (stay on this branch)
 ```
 
