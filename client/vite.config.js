@@ -7,6 +7,13 @@ import { defineConfig } from 'vite' // Vite defineConfig helper define the proje
 export default defineConfig({ // enable React support in vite
   plugins: [react()],
 
+  // Dev server settings
+  server: {
+    proxy: {
+      "/api": "http://localhost:5555", // forwards /api requests to Flask
+    },
+  },
+
    /*Vitest settings to run React component tests*/
   test: { 
     environment: 'jsdom', // simulate a browser environment for DOM-based tests
