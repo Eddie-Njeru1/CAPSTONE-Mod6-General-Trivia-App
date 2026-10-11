@@ -1,13 +1,28 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 function ResourceForm({ resource = null, onSubmit, onCancel }) {
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
+  const resourceKey = resource
+    ? `${resource.id ?? resource.name ?? resource.title}:${resource.name ?? resource.title ?? ''}:${resource.description ?? ''}`
+    : 'new';
 
-  useEffect(() => {
-    setName(resource?.name || resource?.title || '');
-    setDescription(resource?.description || '');
-  }, [resource]);
+  return (
+    <ResourceFormFields
+      key={resourceKey}
+      resource={resource}
+      onSubmit={onSubmit}
+      onCancel={onCancel}
+    />
+  );
+}
+
+function ResourceFormFields({ resource, onSubmit, onCancel }) {
+  const [name, setName] = useState(
+    resource?.name || resource?.title || '',
+  );
+
+  const [description, setDescription] = useState(
+    resource?.description || '',
+  );
 
   function handleSubmit(event) {
     event.preventDefault();
@@ -32,6 +47,7 @@ function ResourceForm({ resource = null, onSubmit, onCancel }) {
 
       <div className="resource-form__field">
         <label htmlFor="resource-name">Resource Name</label>
+
         <input
           id="resource-name"
           type="text"
@@ -44,6 +60,7 @@ function ResourceForm({ resource = null, onSubmit, onCancel }) {
 
       <div className="resource-form__field">
         <label htmlFor="resource-description">Description</label>
+
         <textarea
           id="resource-description"
           value={description}
