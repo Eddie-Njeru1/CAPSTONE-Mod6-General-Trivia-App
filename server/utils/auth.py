@@ -26,7 +26,7 @@ def invalid_token(reason):
 # Handle tokens that have passed their expiry time 
 @jwt.expired_token_loader
 def expired_token(jwt_header, jwt_payload):
-    return jsonify({"eror": "Token has expired"}), 401
+    return jsonify({"error": "Token has expired"}), 401
 
 # Handle tokens that have been revoked 
 @jwt.revoked_token_loader

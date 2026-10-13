@@ -4,7 +4,7 @@ import os # access environment variables
 from datetime import timedelta # sets duration for login token validity
 from dotenv import load_dotenv # reads environment variables from .env file
 
-load_dotenv # load variables from .env file
+load_dotenv() # load variables from .env file
 
 # Config class for the main application
 class Config: # settings used when running the app
