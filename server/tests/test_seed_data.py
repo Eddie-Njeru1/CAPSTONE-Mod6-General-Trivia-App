@@ -4,7 +4,7 @@
 import pytest
 from flask import Flask
 
-from models import Category, Question, db
+from models import Category, Question, User, db
 from utils.seed_data import SEED_CATEGORIES
 
 
@@ -22,11 +22,13 @@ def session():
         db.drop_all()
 
 
-def build_categories():
+def build_categories(owner):
     """Turn the seed dictionaries into Category and Question objects."""
     categories = []
     for data in SEED_CATEGORIES:
-        category = Category(name=data["name"], description=data["description"])
+        category = Category(
+            name=data["name"], description=data["description"], user=owner
+        )
         for question_data in data["questions"]:
             Question(**question_data, category=category)
         categories.append(category)
@@ -34,7 +36,8 @@ def build_categories():
 
 
 def test_every_seed_question_passes_model_validation(session):
-    session.add_all(build_categories())
+    owner = User(username="demo", email="demo@example.com", password_hash="x")
+    session.add_all(build_categories(owner))
     session.commit()  # raises if any question breaks a rule
 
     total = sum(len(data["questions"]) for data in SEED_CATEGORIES)

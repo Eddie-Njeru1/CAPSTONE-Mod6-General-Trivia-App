@@ -1,15 +1,17 @@
-# Tests for the Category and Question models: saving, the relationship,
-# every validation, and cascade deletes.
+# Tests for the Category, Question and QuizAttempt models: saving,
+# relationships, ownership, every validation, and cascade deletes.
 #
 # Each test gets a brand-new in-memory SQLite database, so tests never touch
 # your PostgreSQL data and never affect each other.
+
+from itertools import count
 
 import pytest
 from flask import Flask
 from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError
 
-from models import Category, Question, db
+from models import Category, Question, QuizAttempt, User, db
 
 
 # ---------- fixtures and helpers ----------
@@ -29,9 +31,27 @@ def session():
         db.drop_all()
 
 
+_user_numbers = count(1)
+
+
+def make_user(**overrides):
+    """A valid user with a unique username and email each time."""
+    n = next(_user_numbers)
+    fields = {
+        "username": f"player{n}",
+        "email": f"player{n}@example.com",
+        # Model tests don't need real hashing; auth tests cover set_password.
+        "password_hash": "not-a-real-hash",
+    }
+    fields.update(overrides)
+    return User(**fields)
+
+
 def make_category(**overrides):
+    """A valid category, owned by a brand-new user unless one is given."""
     fields = {"name": "Geography", "description": "Places and maps"}
     fields.update(overrides)
+    fields.setdefault("user", make_user())
     return Category(**fields)
 
 
@@ -71,13 +91,38 @@ def test_category_name_has_a_maximum_length():
         make_category(name="x" * 81)
 
 
-def test_category_names_are_unique(session):
-    session.add(make_category(name="Science"))
+def test_one_user_cannot_have_two_categories_with_the_same_name(session):
+    owner = make_user()
+    session.add(make_category(name="Science", user=owner))
     session.commit()
 
-    session.add(make_category(name="Science"))
+    session.add(make_category(name="Science", user=owner))
     with pytest.raises(IntegrityError):
         session.commit()
+
+
+def test_different_users_can_use_the_same_category_name(session):
+    session.add_all([make_category(name="Science"), make_category(name="Science")])
+    session.commit()
+
+    assert Category.query.filter_by(name="Science").count() == 2
+
+
+def test_category_must_have_an_owner(session):
+    session.add(Category(name="Orphan"))  # no user
+    with pytest.raises(IntegrityError):
+        session.commit()
+
+
+def test_category_and_owner_are_linked_both_ways(session):
+    owner = make_user()
+    category = make_category(user=owner)
+    session.add(category)
+    session.commit()
+
+    assert category.user is owner
+    assert category.user_id == owner.id
+    assert owner.categories == [category]
 
 
 def test_blank_description_is_stored_as_none(session):
@@ -267,6 +312,19 @@ def test_database_rejects_invalid_difficulty_even_with_raw_sql(session):
 # ---------- cascade delete ----------
 
 
+def test_deleting_a_user_deletes_their_categories_and_questions(session):
+    owner = make_user()
+    make_question(category=make_category(user=owner))
+    session.add(owner)
+    session.commit()
+
+    session.delete(owner)
+    session.commit()
+
+    assert Category.query.count() == 0
+    assert Question.query.count() == 0
+
+
 def test_deleting_a_category_deletes_its_questions(session):
     category = make_category()
     make_question(category=category)
@@ -280,3 +338,97 @@ def test_deleting_a_category_deletes_its_questions(session):
     session.commit()
 
     assert Question.query.count() == 0
+
+
+# ---------- QuizAttempt ----------
+
+
+def make_attempt(**overrides):
+    """A valid finished round: 7 of 10 correct, best streak of 4."""
+    fields = {"score": 7, "total_questions": 10, "points": 120, "best_streak": 4}
+    fields.update(overrides)
+    fields.setdefault("user", make_user())
+    return QuizAttempt(**fields)
+
+
+def test_quiz_attempt_saves_and_links_to_user_and_category(session):
+    category = make_category()
+    attempt = make_attempt(user=category.user, category=category)
+    session.add(attempt)
+    session.commit()
+
+    assert attempt.id is not None
+    assert attempt.created_at is not None
+    assert category.user.quiz_attempts == [attempt]
+    assert category.quiz_attempts == [attempt]
+
+
+def test_mixed_round_has_no_category(session):
+    attempt = make_attempt()  # no category = Mixed round
+    session.add(attempt)
+    session.commit()
+
+    assert attempt.category_id is None
+
+
+def test_deleting_a_category_keeps_its_attempts(session):
+    category = make_category()
+    session.add(make_attempt(user=category.user, category=category))
+    session.commit()
+
+    session.delete(category)
+    session.commit()
+
+    attempt = QuizAttempt.query.one()
+    assert attempt.category_id is None  # history survives
+
+
+def test_deleting_a_user_deletes_their_attempts(session):
+    owner = make_user()
+    session.add(make_attempt(user=owner))
+    session.commit()
+
+    session.delete(owner)
+    session.commit()
+
+    assert QuizAttempt.query.count() == 0
+
+
+@pytest.mark.parametrize("field", ["score", "points", "best_streak"])
+@pytest.mark.parametrize("bad_value", [-1, 1.5, "7", True, None])
+def test_attempt_numbers_must_be_non_negative_whole_numbers(field, bad_value):
+    with pytest.raises(ValueError):
+        make_attempt(**{field: bad_value})
+
+
+@pytest.mark.parametrize("bad_total", [0, -5])
+def test_attempt_needs_at_least_one_question(bad_total):
+    with pytest.raises(ValueError, match="total_questions must be at least 1"):
+        make_attempt(total_questions=bad_total)
+
+
+def test_score_cannot_exceed_total_questions(session):
+    session.add(make_attempt(score=11, total_questions=10, best_streak=4))
+    with pytest.raises(ValueError, match="score can't be more than total_questions"):
+        session.commit()
+
+
+def test_best_streak_cannot_exceed_score(session):
+    session.add(make_attempt(score=3, best_streak=5))
+    with pytest.raises(ValueError, match="best_streak can't be more than score"):
+        session.commit()
+
+
+def test_database_rejects_impossible_score_even_with_raw_sql(session):
+    owner = make_user()
+    session.add(owner)
+    session.commit()
+
+    with pytest.raises(IntegrityError):
+        session.execute(
+            text(
+                "INSERT INTO quiz_attempts (user_id, score, total_questions, points, best_streak) "
+                "VALUES (:uid, 15, 10, 0, 0)"
+            ),
+            {"uid": owner.id},
+        )
