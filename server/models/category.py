@@ -1,5 +1,5 @@
 # Category: a named group of trivia questions (e.g. "Science", "Kenyan History").
-# One category has many questions (one-to-many).
+# Each category belongs to one user (its owner) and has many questions.
 
 from sqlalchemy.orm import validates
 
@@ -13,11 +13,30 @@ class Category(db.Model):
     DESCRIPTION_MAX_LENGTH = 255
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(NAME_MAX_LENGTH), nullable=False, unique=True)
+    name = db.Column(db.String(NAME_MAX_LENGTH), nullable=False)
     description = db.Column(db.String(DESCRIPTION_MAX_LENGTH))
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
     created_at = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
     updated_at = db.Column(
         db.DateTime, server_default=db.func.now(), onupdate=db.func.now(), nullable=False
+    )
+
+    # A user can't have two categories with the same name,
+    # but two different users can each have their own "Science".
+    __table_args__ = (
+        db.UniqueConstraint("user_id", "name", name="uq_categories_user_id_name"),
+    )
+
+    # The owner. The backref also gives every User a `.categories` list
+    # (deleting a user deletes their categories), without editing user.py.
+    user = db.relationship(
+        "User",
+        backref=db.backref("categories", cascade="all, delete-orphan"),
     )
 
     # Deleting a category deletes its questions too, so no question is left
