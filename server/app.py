@@ -21,7 +21,7 @@ def create_app(config_class=Config): # Creates and configures the Flas app
     from routes.auth_routes import auth_bp # authentication routes for signup, login, logout and user details
     from routes.api_routes import api_bp # API routes for categories and trivia questions 
 
-    app.register_blueprint(auth_bp, url_prefix="/api") # register authentication routes 
+    app.register_blueprint(auth_bp, url_prefix="/api/auth") # register authentication routes 
     app.register_blueprint(api_bp, url_prefix="/api") # reguster trivia API routes 
 
 # Endpoint to check whether the API is running

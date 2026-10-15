@@ -12,15 +12,15 @@ EMAIL_PATTERN = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 class User(db.Model): 
     __tablename__ = "users" # set databsase table name 
     __table_args__ = (
-        db.CheckConstraint("length(username) >=3", name="ck_users_username_length"),
-    ), # requires usernames to contain at least 3 characters 
+        db.CheckConstraint("length(username) >=3", name="username_length"),
+    ) # requires usernames to contain at least 3 characters 
 
     id = db.Column(db.Integer, primary_key=True) # Assign unique ID to each user 
     username = db.Column(db.String(50), nullable=False, unique=True) # store required username with upto 50 characters 
     email = db.Column(db.String(120), nullable=False, unique=True) # store required unique email address upto 120 characters 
-    password_hash = db.Column(db.String(255), nullable=False, unique=True) # store hashed password 
-    created_at = db.Column(db.DateTime, nullable=False, server_default=db.func.now(), # store the date and time user account was created 
-    ),  
+    password_hash = db.Column(db.String(255), nullable=False) # store hashed password 
+    created_at = db.Column(db.DateTime, nullable=False, server_default=db.func.now() # store the date and time user account was created 
+    )  
 
     @validates("username") # validate usernames when values are assigned 
     def validate_username(self, key, value):

@@ -67,19 +67,20 @@ def signup():
     except IntegrityError:
         db.session.rollback() # undo the failed transaction if a database constraint is violated 
         return error("username or email is already registered", 409)
-    return jsonify({"user": serialize_user(user)}), 201 # return new user public details with status code 
+    token = create_access_token(identity=str(user.id))
+    return jsonify({"access_token": token, "user": serialize_user(user)}), 201 # return new user public details with status code 
 
 # Log in an existing user 
 @auth_bp.post("/login")
 def login():
-    fields, problem = read_fields("username", "password") # read the username and password from the request
+    fields, problem = read_fields("email", "password") # read the email and password from the request
     if problem:
         return problem
-    username, password = fields # separate the submitted credentials 
-    user = User.query.filter_by(username=username.strip()).first() # find the user by username after removing surrounding spaces 
+    email, password = fields # separate the submitted credentials 
+    user = User.query.filter_by(email=email.strip().lower()).first() # find the user by email after removing surrounding spaces 
 
     if user is None or not user.check_password(password): # reject incorrect credentials without rvealing whic value was wrong 
-        return error("Invalid username or password", 409)
+        return error("Invalid username or password", 401)
     
     # login token using the user ID as a string 
     token = create_access_token(identity=str(user.id))
