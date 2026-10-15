@@ -1,9 +1,8 @@
-
 """
-Marshmallow schemas for safely serializing user information.
+Marshmallow schema for safely serializing user information.
 
-This module exposes public user fields to API responses.
-Password values and password hashes must never be returned.
+This module exposes the public user fields needed by the API.
+Password hashes are never returned in serialized responses.
 """
 
 from marshmallow import Schema, fields, validate
@@ -15,19 +14,27 @@ class UserSchema(Schema):
     # The database assigns the user's ID.
     id = fields.Integer(dump_only=True)
 
-    # Email is public account information, not an authentication secret.
+    # Username is part of the public user profile.
+    username = fields.String(
+        required=True,
+        validate=validate.Length(min=1, max=80),
+    )
+
+    # Email is public account information.
     email = fields.Email(
         required=True,
         validate=validate.Length(max=254),
     )
 
-    # Timestamps are generated and managed by the database.
+    # Password hashes must never appear in API responses.
+    password_hash = fields.String(load_only=True)
+
+    # The database manages the creation timestamp.
     created_at = fields.DateTime(dump_only=True)
-    updated_at = fields.DateTime(dump_only=True)
 
 
-# Reusable schema for serializing one user or validating public user data.
+# Reusable schema for one user.
 user_schema = UserSchema()
 
-# Reusable schema for serializing a list of users.
+# Reusable schema for multiple users.
 users_schema = UserSchema(many=True)

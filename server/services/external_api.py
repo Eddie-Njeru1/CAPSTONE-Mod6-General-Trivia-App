@@ -2,6 +2,8 @@
 Service for retrieving trivia questions and categories from Open Trivia DB.
 """
 
+from urllib.parse import unquote
+
 import requests
 
 
@@ -56,6 +58,11 @@ def fetch_external_categories():
         raise ExternalAPIError(
             "The trivia service returned invalid categories."
         )
+
+    # Decode URL-encoded category names.
+    for category in categories:
+        if isinstance(category, dict) and "name" in category:
+            category["name"] = unquote(category["name"])
 
     return categories
 
@@ -124,6 +131,24 @@ def fetch_external_questions(
             raise ExternalAPIError(
                 "The trivia service returned invalid questions."
             )
+
+        # Decode URL-encoded text returned by Open Trivia DB.
+        for question in results:
+            if "category" in question:
+                question["category"] = unquote(question["category"])
+
+            if "question" in question:
+                question["question"] = unquote(question["question"])
+
+            if "correct_answer" in question:
+                question["correct_answer"] = unquote(
+                    question["correct_answer"]
+                )
+
+            question["incorrect_answers"] = [
+                unquote(answer)
+                for answer in question.get("incorrect_answers", [])
+            ]
 
         return results
 

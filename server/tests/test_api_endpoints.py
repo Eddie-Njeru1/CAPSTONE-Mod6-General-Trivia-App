@@ -64,6 +64,31 @@ def test_fetch_external_questions_returns_questions(mock_get):
     assert request_params["difficulty"] == "easy"
     assert request_params["type"] == "multiple"
 
+@patch("services.external_api.requests.get")
+def test_fetch_external_questions_decodes_encoded_text(mock_get):
+    """Decode URL-encoded text returned by Open Trivia DB."""
+    mock_response = Mock()
+    mock_response.json.return_value = {
+        "response_code": 0,
+        "results": [
+            {
+                "category": "Science%20%26%20Nature",
+                "question": "What%20is%202%20%2B%202%3F",
+                "correct_answer": "4",
+                "incorrect_answers": ["3", "5", "6"],
+            }
+        ],
+    }
+    mock_response.raise_for_status.return_value = None
+    mock_get.return_value = mock_response
+
+    result = fetch_external_questions(amount=1)
+
+    assert result[0]["category"] == "Science & Nature"
+    assert result[0]["question"] == "What is 2 + 2?"
+    assert result[0]["correct_answer"] == "4"
+    assert result[0]["incorrect_answers"] == ["3", "5", "6"]
+
 
 @patch("services.external_api.requests.get")
 def test_fetch_external_questions_returns_empty_for_no_results(mock_get):
