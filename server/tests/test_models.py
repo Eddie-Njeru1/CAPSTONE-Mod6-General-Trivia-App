@@ -432,3 +432,48 @@ def test_database_rejects_impossible_score_even_with_raw_sql(session):
             ),
             {"uid": owner.id},
         )
+
+
+# ---------- QuizAttempt.leaderboard ----------
+
+
+def test_leaderboard_ranks_players_by_total_points(session):
+    alice, brian = make_user(username="alice"), make_user(username="brian")
+    session.add_all([
+        make_attempt(user=alice, points=100, best_streak=3),
+        make_attempt(user=alice, points=50, best_streak=5),
+        make_attempt(user=brian, points=120, best_streak=2),
+    ])
+    session.commit()
+
+    board = QuizAttempt.leaderboard()
+
+    assert board == [
+        {"rank": 1, "username": "alice", "total_points": 150,
+         "games_played": 2, "best_streak": 5},
+        {"rank": 2, "username": "brian", "total_points": 120,
+         "games_played": 1, "best_streak": 2},
+    ]
+
+
+def test_leaderboard_breaks_ties_by_fewer_games(session):
+    alice, brian = make_user(username="alice"), make_user(username="brian")
+    session.add_all([
+        make_attempt(user=alice, points=50),
+        make_attempt(user=alice, points=50),
+        make_attempt(user=brian, points=100),  # same total in one game
+    ])
+    session.commit()
+
+    assert [row["username"] for row in QuizAttempt.leaderboard()] == ["brian", "alice"]
+
+
+def test_leaderboard_respects_the_limit_and_skips_players_with_no_games(session):
+    session.add(make_user(username="nogames"))
+    session.add_all([make_attempt(points=p) for p in (10, 20, 30)])
+    session.commit()
+
+    board = QuizAttempt.leaderboard(limit=2)
+
+    assert [row["total_points"] for row in board] == [30, 20]
+    assert "nogames" not in [row["username"] for row in board]
