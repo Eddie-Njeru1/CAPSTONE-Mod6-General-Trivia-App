@@ -13,11 +13,6 @@ function NavBar() {
           Home
         </NavLink>
 
-        {/* Navigate to the results page. */}
-        <NavLink to="/results" className="navbar__link">
-          Results
-        </NavLink>
-
         {/* Navigate to the scoreboard page. */}
         <NavLink to="/scoreboard" className="navbar__link">
           Scoreboard
