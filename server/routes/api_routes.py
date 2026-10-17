@@ -723,14 +723,23 @@ def update_question_record(question_id, partial=False):
             400,
         )
 
-    # A PATCH request may omit unchanged fields. Merge its fields with the
-    # existing serialized record before validating the complete question.
     if partial:
-        merged_data = question_schema.dump(question)
+        # Serialize the existing question to preserve unchanged fields.
+        dumped_data = question_schema.dump(question)
+
+        # Keep only fields accepted by the input schema.
+        # This excludes output-only fields such as id and timestamps.
+        merged_data = {
+            key: value
+            for key, value in dumped_data.items()
+            if key in question_schema.load_fields
+        }
+
+        # Apply the fields supplied in the PATCH request.
         merged_data.update(data)
     else:
+        # PUT validates the complete request supplied by the client.
         merged_data = data
-
     # Verify ownership of the selected category, including if the client
     # attempts to move the question to a different category.
     category_error = validate_question_category(
