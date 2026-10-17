@@ -242,12 +242,14 @@ Errors always come back as `{"error": "..."}` with status `400` (bad input),
 login token, never from the request body, so nobody can save a score as
 someone else.
 
-### Tips for the category and question routes
+### Notes for the category and question routes
 
-- Always filter by the logged-in user:
-  `Category.query.filter_by(user_id=get_current_user_id())`.
-- A category that belongs to someone else should return `404`, so the API
-  doesn't reveal that it exists.
+These routes live in `routes/api_routes.py` (Emmanuel).
+
+- Any logged-in user can **read** every category and question, so everyone
+  can play the seed categories.
+- Only the **owner** (`category.user_id`) can edit or delete a category or
+  its questions; anyone else gets `403`.
 - Wrap saves in `try/except ValueError` and return the message as a `400`;
   the models already produce clear messages.
 - On `IntegrityError` (for example, a duplicate category name for the same
