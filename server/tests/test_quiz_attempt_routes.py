@@ -133,7 +133,7 @@ def test_history_shows_only_my_rounds_newest_first(client):
     response = client.get("/api/quiz-attempts", headers=mine)
 
     assert response.status_code == 200
-    assert [a["score"] for a in response.get_json()] == [8, 3]
+    assert [a["score"] for a in response.get_json()["items"]] == [8, 3]
 
 
 def test_history_requires_login(client):
@@ -169,3 +169,44 @@ def test_leaderboard_limit(client):
 def test_leaderboard_rejects_a_bad_limit(client, bad_limit):
     response = client.get(f"/api/leaderboard?limit={bad_limit}")
     assert response.status_code == 400
+
+
+# ---------- pagination of GET /api/quiz-attempts ----------
+
+
+def test_history_is_paginated(client):
+    headers = sign_up(client)
+    for score in range(1, 6):  # 5 rounds, scores 1..5
+        client.post(
+            "/api/quiz-attempts",
+            json=valid_round(score=score, best_streak=1),
+            headers=headers,
+        )
+
+    first = client.get("/api/quiz-attempts?page=1&per_page=2", headers=headers).get_json()
+    last = client.get("/api/quiz-attempts?page=3&per_page=2", headers=headers).get_json()
+
+    assert [a["score"] for a in first["items"]] == [5, 4]  # newest first
+    assert (first["page"], first["per_page"], first["total"], first["pages"]) == (1, 2, 5, 3)
+    assert [a["score"] for a in last["items"]] == [1]
+
+
+def test_history_page_past_the_end_is_empty_not_an_error(client):
+    headers = sign_up(client)
+    response = client.get("/api/quiz-attempts?page=99", headers=headers)
+
+    assert response.status_code == 200
+    assert response.get_json()["items"] == []
+
+
+@pytest.mark.parametrize("query", ["page=0", "page=two", "per_page=-1"])
+def test_history_rejects_bad_page_numbers(client, query):
+    headers = sign_up(client)
+    response = client.get(f"/api/quiz-attempts?{query}", headers=headers)
+    assert response.status_code == 400
+
+
+def test_history_caps_per_page(client):
+    headers = sign_up(client)
+    response = client.get("/api/quiz-attempts?per_page=1000", headers=headers)
+    assert response.get_json()["per_page"] == 50
