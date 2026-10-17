@@ -80,7 +80,7 @@ def login():
     user = User.query.filter_by(email=email.strip().lower()).first() # find the user by email after removing surrounding spaces 
 
     if user is None or not user.check_password(password): # reject incorrect credentials without rvealing whic value was wrong 
-        return error("Invalid username or password", 401)
+        return error("Invalid email or password", 401)
     
     # login token using the user ID as a string 
     token = create_access_token(identity=str(user.id))

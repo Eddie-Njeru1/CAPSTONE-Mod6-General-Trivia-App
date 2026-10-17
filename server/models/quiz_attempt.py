@@ -75,6 +75,40 @@ class QuizAttempt(db.Model):
             raise ValueError(f"{label} must be at least {minimum}.")
         return value
 
+    # ---- scoreboard queries ----
+
+    @classmethod
+    def leaderboard(cls, limit=10):
+        """Top players by total points, one row per player.
+
+        Ties are broken by fewer games played (more points per game),
+        then alphabetically, so the order is always the same.
+        """
+        from .user import User  # imported here to avoid a circular import
+
+        total_points = db.func.sum(cls.points).label("total_points")
+        games_played = db.func.count(cls.id).label("games_played")
+        best_streak = db.func.max(cls.best_streak).label("best_streak")
+
+        rows = (
+            db.session.query(User.username, total_points, games_played, best_streak)
+            .join(cls.user)
+            .group_by(User.id, User.username)
+            .order_by(total_points.desc(), games_played.asc(), User.username.asc())
+            .limit(limit)
+            .all()
+        )
+        return [
+            {
+                "rank": position,
+                "username": row.username,
+                "total_points": row.total_points,
+                "games_played": row.games_played,
+                "best_streak": row.best_streak,
+            }
+            for position, row in enumerate(rows, start=1)
+        ]
+
     def __repr__(self):
         return (
             f"<QuizAttempt id={self.id} user_id={self.user_id} "
