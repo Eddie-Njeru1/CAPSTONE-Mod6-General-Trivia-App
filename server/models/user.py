@@ -19,8 +19,7 @@ class User(db.Model):
     username = db.Column(db.String(50), nullable=False, unique=True) # store required username with upto 50 characters 
     email = db.Column(db.String(120), nullable=False, unique=True) # store required unique email address upto 120 characters 
     password_hash = db.Column(db.String(255), nullable=False) # store hashed password 
-    created_at = db.Column(db.DateTime, nullable=False, server_default=db.func.now() # store the date and time user account was created 
-    )  
+    created_at = db.Column(db.DateTime, nullable=False, server_default=db.func.now()) # store the date and time user account was created 
 
     @validates("username") # validate usernames when values are assigned 
     def validate_username(self, key, value):
