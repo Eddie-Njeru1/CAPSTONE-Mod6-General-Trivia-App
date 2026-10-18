@@ -1695,10 +1695,11 @@ img {
 
 .dashboard__header p {
   max-width: 560px;
-  margin: 0;
+  margin: 0 auto;
   color: rgba(255, 255, 255, 0.9);
   font-size: 1.05rem;
   line-height: 1.7;
+  text-align: center;
 }
 
 /* Add Resource button */
