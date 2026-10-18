@@ -1986,3 +1986,237 @@ img {
     transform: none;
   }
 }
+/* =========================================
+   DASHBOARD WHITE INTERIOR
+   ========================================= */
+
+.dashboard {
+  background: var(--surface);
+  padding: 2rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Keep the dashboard hero purple with white text. */
+.dashboard__header {
+  background: linear-gradient(
+    135deg,
+    var(--primary),
+    var(--primary-dark)
+  );
+  color: #ffffff;
+}
+
+.dashboard__header h1 {
+  color: #ffffff;
+}
+
+.dashboard__header p {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* =========================================
+   ADD AND EDIT RESOURCE FORM
+   ========================================= */
+
+.resource-form {
+  width: 100%;
+  max-width: 760px;
+  box-sizing: border-box;
+  margin: 0 auto 2rem;
+  padding: 2rem;
+
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.resource-form h2 {
+  margin: 0 0 1.5rem;
+  color: var(--text);
+  font-size: 1.6rem;
+  font-weight: 750;
+}
+
+/* Form fields and labels */
+.resource-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin-bottom: 1.4rem;
+}
+
+.resource-form__field label {
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 650;
+}
+
+.resource-form__field input,
+.resource-form__field textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.9rem 1rem;
+
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+
+  background: #ffffff;
+  color: var(--text);
+  font: inherit;
+  line-height: 1.5;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.resource-form__field input {
+  min-height: 48px;
+}
+
+.resource-form__field textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.resource-form__field input::placeholder,
+.resource-form__field textarea::placeholder {
+  color: var(--text-light);
+  opacity: 0.8;
+}
+
+.resource-form__field input:focus,
+.resource-form__field textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.15);
+}
+
+/* Add Resource and Cancel buttons */
+.resource-form__actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.75rem;
+}
+
+.resource-form__actions button {
+  min-height: 46px;
+  padding: 0.75rem 1.4rem;
+
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+/* Primary action: Add Resource or Save Changes */
+.resource-form__actions button[type="submit"] {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #ffffff;
+}
+
+.resource-form__actions button[type="submit"]:hover {
+  background: var(--primary-dark);
+  border-color: var(--primary-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Secondary action: Cancel */
+.resource-form__actions button[type="button"] {
+  background: #ffffff;
+  border-color: var(--border);
+  color: var(--text);
+}
+
+.resource-form__actions button[type="button"]:hover {
+  background: var(--background);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.resource-form__actions button:focus-visible {
+  outline: 3px solid rgba(108, 99, 255, 0.4);
+  outline-offset: 3px;
+}
+
+/* =========================================
+   NAVBAR LOG OUT BUTTON
+   ========================================= */
+
+.navbar__logout {
+  background: #fff5f5;
+  border-color: #fecaca;
+  color: #b91c1c;
+  cursor: pointer;
+  font: inherit;
+}
+
+.navbar__logout:hover {
+  background: #fee2e2;
+  border-color: #ef4444;
+  color: #991b1b;
+}
+
+.navbar__logout:focus-visible {
+  outline: 3px solid rgba(239, 68, 68, 0.3);
+  outline-offset: 3px;
+}
+
+/* =========================================
+   RESPONSIVE FORM AND DASHBOARD
+   ========================================= */
+
+@media (max-width: 700px) {
+  .dashboard {
+    padding: 1rem;
+  }
+
+  .dashboard__header {
+    padding: 2rem 1.25rem;
+  }
+
+  .resource-form {
+    padding: 1.25rem;
+  }
+
+  .resource-form h2 {
+    font-size: 1.4rem;
+  }
+
+  .resource-form__actions {
+    flex-direction: column;
+  }
+
+  .resource-form__actions button {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .resource-form__field input,
+  .resource-form__field textarea,
+  .resource-form__actions button,
+  .navbar__logout {
+    transition: none;
+  }
+
+  .resource-form__actions button:hover {
+    transform: none;
+  }
+}
