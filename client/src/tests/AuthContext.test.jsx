@@ -93,7 +93,43 @@ describe('AuthContext', () => {
 
     fireEvent.click(screen.getByText('do-logout'))
 
-    expect(screen.getByText('logged-out')).toBeTruthy()
+    // logout() is async (it calls the server first), so wait for the session to be cleared.
+    await waitFor(() => expect(screen.getByText('logged-out')).toBeTruthy())
+    expect(screen.getByText('no-user')).toBeTruthy()
+    expect(localStorage.getItem('trivia-token')).toBeNull()
+  })
+
+  it('logout asks the server to revoke the token', async () => {
+    postMock.mockResolvedValue({
+      data: { access_token: 'abc123', user: { username: 'gloria' } },
+    })
+    renderWithProvider()
+
+    fireEvent.click(screen.getByText('do-login'))
+    await waitFor(() => expect(screen.getByText('logged-in')).toBeTruthy())
+
+    fireEvent.click(screen.getByText('do-logout'))
+    await waitFor(() => expect(screen.getByText('logged-out')).toBeTruthy())
+
+    // POST /api/auth/logout tells the backend to stop accepting this token.
+    expect(postMock).toHaveBeenCalledWith('/auth/logout')
+  })
+
+  it('logout still clears the session when the server call fails', async () => {
+    postMock.mockResolvedValueOnce({
+      data: { access_token: 'abc123', user: { username: 'gloria' } },
+    })
+    renderWithProvider()
+
+    fireEvent.click(screen.getByText('do-login'))
+    await waitFor(() => expect(screen.getByText('logged-in')).toBeTruthy())
+
+    // The logout request fails (e.g. the token already expired or the server is down).
+    postMock.mockRejectedValueOnce({ response: { status: 401 } })
+    fireEvent.click(screen.getByText('do-logout'))
+
+    // The user is logged out locally anyway.
+    await waitFor(() => expect(screen.getByText('logged-out')).toBeTruthy())
     expect(localStorage.getItem('trivia-token')).toBeNull()
   })
 

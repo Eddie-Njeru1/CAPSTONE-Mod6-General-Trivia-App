@@ -2,7 +2,7 @@
 // Holds the app's login state and provides it to every component inside it.
 //
 // State: user, token, loading (a request is in progress), error (readable message).
-// Actions: login(), signup(), logout(), clearError().
+// Actions: login(), signup(), logout() (also revokes the token on the server), clearError().
 // The session is saved in localStorage so a page refresh does not log the user out.
 //
 // Used by: wraps the app in App.jsx so useAuth() works everywhere.
@@ -89,12 +89,23 @@ export function AuthProvider({ children }) {
   const login = (credentials) => authenticate('/auth/login', credentials) // POST /api/auth/login
   const signup = (details) => authenticate('/auth/signup', details) // POST /api/auth/signup
 
-  // Clears the session in the browser. Note: this does not yet call the server's
-  // /auth/logout route, so the token is removed locally but not revoked on the server.
-  function logout() {
-    setToken(null)
-    saveUser(null)
-    setTokenState(null)
+  // Logs the user out. First asks the server to revoke the token (POST /api/auth/logout)
+  // so it can no longer be used, then clears the session in the browser.
+  // async: callers should await it (NavBar does) so the page only changes once the
+  // session is really cleared.
+  async function logout() {
+    try {
+      // Must run BEFORE the token is cleared below: the request interceptor in
+      // api.js reads the saved token to build the Authorization header.
+      await api.post('/auth/logout') // revoke the token on the server (the interceptor adds the header)
+    } catch {
+      // The server call can fail (e.g. the token already expired, or the server is
+      // unreachable). The user still wants to be logged out, so carry on and clear
+      // the session locally regardless.
+    }
+    setToken(null) // remove the token from localStorage
+    saveUser(null) // remove the saved user from localStorage
+    setTokenState(null) // update React state so the screen reflects the logout
     setUser(null)
     setError(null)
   }
