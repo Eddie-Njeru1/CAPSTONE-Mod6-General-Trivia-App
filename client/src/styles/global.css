@@ -1367,3 +1367,293 @@ img {
     font-size: 1.7rem;
   }
 }
+
+/* =================================
+   Resource Dashboard
+   ================================= */
+
+.dashboard {
+  width: min(100% - 2rem, 1100px);
+  min-height: calc(100vh - 80px);
+  margin: 0 auto;
+  padding: 3rem 0 4rem;
+}
+
+.dashboard__header {
+  margin-bottom: 2rem;
+  padding: 2.5rem;
+
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.dashboard__header::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+
+  background: linear-gradient(
+    90deg,
+    var(--primary),
+    var(--secondary)
+  );
+}
+
+.dashboard__header h1 {
+  margin-bottom: 0.75rem;
+  color: var(--text);
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.dashboard__header p {
+  color: var(--text-light);
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+/* Resource section */
+
+.dashboard .resource-list {
+  margin-top: 2rem;
+}
+
+/* Responsive layout */
+
+@media (max-width: 600px) {
+  .dashboard {
+    width: min(100% - 1.5rem, 1100px);
+    padding: 2rem 0;
+  }
+
+  .dashboard__header {
+    padding: 2rem 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .dashboard__header h1 {
+    font-size: 2rem;
+  }
+
+  .dashboard__header p {
+    font-size: 0.95rem;
+  }
+}
+
+/* =================================
+   Resource List
+   ================================= */
+
+.resource-list {
+  margin-top: 2rem;
+  padding: 2rem;
+
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.resource-list > h2 {
+  margin-bottom: 1.5rem;
+  color: var(--text);
+  font-size: 1.75rem;
+  font-weight: 800;
+}
+
+/* Resource cards layout */
+
+.resource-list__items {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+/* Individual resource card */
+
+.resource-list__item {
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+
+  box-shadow: var(--shadow-sm);
+
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.resource-list__item:hover {
+  transform: translateY(-3px);
+  border-color: var(--primary);
+  box-shadow: var(--shadow-md);
+}
+
+.resource-list__item h3 {
+  margin-bottom: 0.75rem;
+  color: var(--text);
+  font-size: 1.2rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.resource-list__item > p {
+  flex: 1;
+  margin-bottom: 1.25rem;
+  color: var(--text-light);
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+
+/* Resource action buttons */
+
+.resource-list__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: auto;
+}
+
+.resource-list__actions button {
+  padding: 0.6rem 0.9rem;
+
+  background: var(--primary);
+  color: white;
+
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+
+  font-size: 0.9rem;
+  font-weight: 600;
+
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.resource-list__actions button:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+}
+
+.resource-list__actions button:focus-visible,
+.resource-list__pagination button:focus-visible {
+  outline: 3px solid rgba(108, 99, 255, 0.35);
+  outline-offset: 3px;
+}
+
+/* Pagination */
+
+.resource-list__pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+
+  border-top: 1px solid var(--border);
+}
+
+.resource-list__pagination span {
+  color: var(--text-light);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.resource-list__pagination button {
+  padding: 0.65rem 1.1rem;
+
+  background: var(--surface);
+  color: var(--primary);
+
+  border: 1px solid var(--primary);
+  border-radius: var(--radius-sm);
+
+  font-weight: 600;
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.resource-list__pagination button:hover:not(:disabled) {
+  background: var(--primary);
+  color: white;
+}
+
+.resource-list__pagination button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Loading, error and empty states */
+
+.resource-list > p {
+  margin-top: 1rem;
+  padding: 1.5rem;
+
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+
+  color: var(--text-light);
+  text-align: center;
+}
+
+.resource-list > p[role="alert"] {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #991b1b;
+}
+
+/* Responsive resource layout */
+
+@media (max-width: 700px) {
+  .resource-list {
+    padding: 1.25rem;
+  }
+
+  .resource-list__items {
+    grid-template-columns: 1fr;
+  }
+
+  .resource-list__item {
+    padding: 1.25rem;
+  }
+
+  .resource-list__actions button {
+    flex: 1;
+  }
+}
+
+@media (max-width: 400px) {
+  .resource-list__pagination {
+    gap: 0.6rem;
+  }
+
+  .resource-list__pagination button {
+    padding: 0.6rem 0.75rem;
+  }
+
+  .resource-list__pagination span {
+    font-size: 0.85rem;
+  }
+}
