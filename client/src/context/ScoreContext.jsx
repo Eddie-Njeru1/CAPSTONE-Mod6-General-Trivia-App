@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { ScoreContext } from "./useScore";
 import { getPointsFor, getStreakMultiplier } from "../utils/quizHelpers";
+import { saveQuizAttempt } from "../services/scoreApi";
 
-// localStorage key for past rounds (Phase 1 has no backend yet).
+// localStorage key for past rounds. Kept in Phase 2 so guests (not logged
+// in) still see their history; logged-in rounds are also saved to the backend.
 const HISTORY_KEY = "trivia-score-history";
 const MAX_HISTORY = 20;
 
@@ -28,6 +30,8 @@ export function ScoreProvider({ children }) {
   const [bestStreak, setBestStreak] = useState(0);
   // past rounds, shaped { category, score, total } for ScoreboardPage
   const [history, setHistory] = useState(loadHistory);
+  // Backend save of the last round: "idle" | "saving" | "saved" | "failed" | "guest"
+  const [saveStatus, setSaveStatus] = useState("idle");
 
   // Save history to the browser whenever it changes.
   useEffect(() => {
@@ -45,6 +49,7 @@ export function ScoreProvider({ children }) {
     setStreak(0);
     setBestStreak(0);
     setTotalQuestions(numberOfQuestions);
+    setSaveStatus("idle");
   }
 
   // Call once per answered question. Returns what this answer earned,
@@ -80,6 +85,13 @@ export function ScoreProvider({ children }) {
       bestStreak,
     };
     setHistory((prev) => [round, ...prev].slice(0, MAX_HISTORY));
+
+    // Also save it to the backend when logged in. This runs in the
+    // background: the results page shows straight away either way.
+    if (totalQuestions > 0) {
+      setSaveStatus("saving");
+      saveQuizAttempt(round).then(setSaveStatus);
+    }
   }
 
   const value = {
@@ -89,6 +101,7 @@ export function ScoreProvider({ children }) {
     streak,
     bestStreak,
     history,
+    saveStatus,
     startRound,
     recordAnswer,
     finishRound,
