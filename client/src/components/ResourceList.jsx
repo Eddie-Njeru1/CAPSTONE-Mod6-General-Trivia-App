@@ -40,7 +40,10 @@ function ResourceList({
     <section className="resource-list">
       <h2>Resources</h2>
       <p className="resource-list__empty-state">
-        No resources yet. Select Add Resource to create your first one.
+        No resources found.
+      </p>
+      <p className="resource-list__empty-hint">
+        Select Add Resource to create your first one.
       </p>
     </section>
   );
