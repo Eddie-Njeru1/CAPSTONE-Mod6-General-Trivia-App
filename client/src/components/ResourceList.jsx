@@ -36,8 +36,15 @@ function ResourceList({
 
   // Display a message when the list contains no resources.
   if (resources.length === 0) {
-    return <p>No resources found.</p>;
-  }
+  return (
+    <section className="resource-list">
+      <h2>Resources</h2>
+      <p className="resource-list__empty-state">
+        No resources yet. Select Add Resource to create your first one.
+      </p>
+    </section>
+  );
+}
 
   return (
     <section className="resource-list">

@@ -87,8 +87,10 @@ function DashboardPage() {
         {!showForm && !selectedResource && (
           <button
             type="button"
+            className="dashboard__add-button"
             onClick={() => setShowForm(true)}
           >
+            <span aria-hidden="true">+</span>
             Add Resource
           </button>
         )}

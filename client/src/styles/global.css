@@ -1657,3 +1657,332 @@ img {
     font-size: 0.85rem;
   }
 }
+
+/* =========================================
+   RESOURCE DASHBOARD
+   ========================================= */
+
+.dashboard {
+  width: min(1100px, calc(100% - 40px));
+  margin: 40px auto 64px;
+  color: var(--text);
+}
+
+/* Dashboard hero section */
+.dashboard__header {
+  position: relative;
+  overflow: hidden;
+  padding: 48px 44px;
+  margin-bottom: 36px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(
+    135deg,
+    var(--primary),
+    var(--primary-dark)
+  );
+  color: #ffffff;
+  box-shadow: var(--shadow-lg);
+}
+
+.dashboard__header h1 {
+  margin: 0 0 12px;
+  color: #ffffff;
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.04em;
+}
+
+.dashboard__header p {
+  max-width: 560px;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+/* Add Resource button */
+.dashboard__add-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 26px;
+  padding: 13px 22px;
+  border: 2px solid #ffffff;
+  border-radius: var(--radius-md);
+  background: #ffffff;
+  color: var(--primary-dark);
+  font-size: 0.98rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.dashboard__add-button span {
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.dashboard__add-button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  background: #f5f3ff;
+}
+
+.dashboard__add-button:focus-visible {
+  outline: 3px solid #ffffff;
+  outline-offset: 4px;
+}
+
+.dashboard__add-button:active {
+  transform: translateY(0);
+}
+
+/* =========================================
+   RESOURCE LIST AND CARDS
+   ========================================= */
+
+.resource-list {
+  padding: 30px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.resource-list > h2 {
+  margin: 0 0 24px;
+  color: var(--text);
+  font-size: 1.5rem;
+  font-weight: 750;
+}
+
+.resource-list__items {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.resource-list__item {
+  min-width: 0;
+  padding: 24px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.resource-list__item:hover {
+  transform: translateY(-3px);
+  border-color: var(--primary);
+  box-shadow: var(--shadow-md);
+}
+
+.resource-list__item h3 {
+  margin: 0 0 10px;
+  color: var(--text);
+  font-size: 1.15rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.resource-list__item p {
+  margin: 0;
+  color: var(--text-light);
+  font-size: 0.96rem;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+
+.resource-list__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.resource-list__actions button {
+  padding: 9px 15px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 650;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.resource-list__actions button:hover {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: #ffffff;
+}
+
+.resource-list__actions button:focus-visible,
+.resource-list__pagination button:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+
+/* Pagination */
+.resource-list__pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-top: 28px;
+  padding-top: 22px;
+  border-top: 1px solid var(--border);
+  color: var(--text-light);
+  font-size: 0.92rem;
+}
+
+.resource-list__pagination button {
+  padding: 9px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.resource-list__pagination button:not(:disabled):hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.resource-list__pagination button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* =========================================
+   NAVIGATION USER BADGE
+   ========================================= */
+
+.navbar__user {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  max-width: 220px;
+  padding: 9px 15px;
+  border: 1px solid rgba(108, 99, 255, 0.25);
+  border-radius: 999px;
+  background: rgba(108, 99, 255, 0.1);
+  color: var(--primary-dark);
+  font-size: 0.92rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+/* Add a subtle user icon without changing the component */
+.navbar__user::before {
+  content: "";
+  flex: 0 0 8px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--primary);
+}
+
+/* =========================================
+   EMPTY, LOADING AND ERROR STATES
+   ========================================= */
+
+.resource-list__empty-state {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 36px 24px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-md);
+  background: var(--background);
+  color: var(--text-light);
+  text-align: center;
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.resource-list > p[role="alert"] {
+  padding: 16px 18px;
+  border: 1px solid var(--error);
+  border-radius: var(--radius-md);
+  background: #fff5f5;
+  color: var(--error);
+  line-height: 1.6;
+}
+
+/* =========================================
+   RESPONSIVE DASHBOARD
+   ========================================= */
+
+@media (max-width: 700px) {
+  .dashboard {
+    width: calc(100% - 28px);
+    margin-top: 24px;
+  }
+
+  .dashboard__header {
+    padding: 32px 24px;
+    margin-bottom: 24px;
+  }
+
+  .dashboard__header h1 {
+    font-size: 2rem;
+  }
+
+  .dashboard__header p {
+    font-size: 0.98rem;
+  }
+
+  .dashboard__add-button {
+    width: 100%;
+  }
+
+  .resource-list {
+    padding: 20px;
+  }
+
+  .resource-list__items {
+    grid-template-columns: 1fr;
+  }
+
+  .resource-list__item {
+    padding: 20px;
+  }
+
+  .resource-list__actions button {
+    flex: 1 1 auto;
+  }
+
+  .navbar__user {
+    max-width: 160px;
+    font-size: 0.85rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dashboard__add-button,
+  .resource-list__item,
+  .resource-list__actions button {
+    transition: none;
+  }
+
+  .dashboard__add-button:hover,
+  .resource-list__item:hover {
+    transform: none;
+  }
+}
