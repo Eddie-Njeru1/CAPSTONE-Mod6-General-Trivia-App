@@ -131,7 +131,7 @@ If `pipenv install --dev` installs nothing, or you see `No module named 'flask'`
 Edit `server/.env`:
 
 ```
-DATABASE_URL=postgresql://trivia_user:your_password@localhost:5432/trivia_dev
+DATABASE_URL=postgresql+psycopg2://trivia_user:your_password@localhost:5432/trivia_dev
 JWT_SECRET_KEY=<long random string>
 ```
 
@@ -240,3 +240,4 @@ Only the owner edits a file. To request a change in someone else's file, comment
 ## Deployment
 
 Not deployed yet. A live link will be added here if the team deploys.
+
