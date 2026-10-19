@@ -3,14 +3,13 @@
 Trivia API Routes
 =================
 
-This module defines REST API endpoints for managing trivia categories
+This module defines the REST API endpoints for managing trivia categories
 and questions.
 
 Features:
     - JWT authentication for every endpoint.
     - Category CRUD (Create, Read, Update, Delete).
     - Question CRUD (Create, Read, Update, Delete).
-    - Optional AI-powered trivia question generation.
     - Ownership checks to prevent users modifying another user's data.
     - Pagination for category and question lists.
     - Optional question filtering by category, difficulty, and type.
@@ -20,14 +19,23 @@ Features:
 Blueprint registration:
     The application registers this blueprint with the /api URL prefix.
 
+    Example endpoints:
+        GET    /api/categories
+        POST   /api/categories
+        GET    /api/questions
+        POST   /api/questions
+
 Authentication:
     Requests must include a valid JWT access token in the Authorization header.
+
+    Example:
+        Authorization: Bearer <access_token>
 
 Ownership:
     Categories belong to the user who created them.
     Questions inherit ownership through their associated category.
+    A user can modify or delete only their own categories and questions.
 """
-
 
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required
@@ -36,7 +44,6 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 from models import Category, Question, db
 from schemas.quiz_schemas import CategorySchema, QuestionSchema
-from services.external_api import AITriviaError, generate_ai_question
 from utils.auth import get_current_user_id
 
 
@@ -75,8 +82,8 @@ def read_json_object():
     Validate that the request contains a JSON object.
 
     Returns:
-        tuple: (parsed_data, None) on success, or
-        (None, error_response) when the request body is invalid.
+        tuple: (parsed_data, None) on success, or (None, error_response)
+        when the request body is invalid.
     """
     if not request.is_json:
         return None, error_response(
@@ -145,7 +152,7 @@ def pagination_response(result, schema):
         schema: Marshmallow schema used to serialize the records.
 
     Returns:
-        tuple: JSON containing records and pagination metadata.
+        tuple: JSON containing the records and pagination metadata.
     """
     return jsonify(
         {
@@ -164,10 +171,13 @@ def pagination_response(result, schema):
 
 def commit_changes():
     """
-    Commit pending database changes and handle database errors.
+    Commit pending database changes and handle expected database errors.
 
-    A rollback is performed whenever the commit fails so the database
-    session is not left in a failed transaction state.
+    Returns:
+        None when the commit succeeds, or an error response on failure.
+
+    A rollback is performed whenever the commit fails so the session is
+    not left in a failed transaction state.
     """
     try:
         db.session.commit()
@@ -197,7 +207,15 @@ def commit_changes():
 # ---------------------------------------------------------------------------
 
 def get_category_or_404(category_id):
-    """Retrieve a category by ID."""
+    """
+    Retrieve a category by ID.
+
+    Args:
+        category_id (int): ID of the category to retrieve.
+
+    Returns:
+        tuple: (category, None) if found, or (None, error_response).
+    """
     category = db.session.get(Category, category_id)
 
     if category is None:
@@ -207,7 +225,15 @@ def get_category_or_404(category_id):
 
 
 def get_question_or_404(question_id):
-    """Retrieve a question by ID."""
+    """
+    Retrieve a question by ID.
+
+    Args:
+        question_id (int): ID of the question to retrieve.
+
+    Returns:
+        tuple: (question, None) if found, or (None, error_response).
+    """
     question = db.session.get(Question, question_id)
 
     if question is None:
@@ -217,7 +243,16 @@ def get_question_or_404(question_id):
 
 
 def check_category_ownership(category, user_id):
-    """Ensure the authenticated user owns the specified category."""
+    """
+    Ensure the authenticated user owns the specified category.
+
+    Args:
+        category: Category database model instance.
+        user_id (int): ID of the authenticated user.
+
+    Returns:
+        None if the user owns the category, otherwise a 403 response.
+    """
     if category.user_id != user_id:
         return error_response(
             "You do not have permission to access this category.",
@@ -228,7 +263,19 @@ def check_category_ownership(category, user_id):
 
 
 def check_question_ownership(question, user_id):
-    """Check question ownership through its associated category."""
+    """
+    Check ownership of a question through its associated category.
+
+    Questions do not store their own user ID. Their category determines
+    which user is allowed to manage them.
+
+    Args:
+        question: Question database model instance.
+        user_id (int): ID of the authenticated user.
+
+    Returns:
+        None when the user owns the question, or an error response.
+    """
     if question.category is None:
         return error_response(
             "The question's category could not be found.",
@@ -239,7 +286,12 @@ def check_question_ownership(question, user_id):
 
 
 def validate_question_category(data, user_id):
-    """Validate that a question references a category owned by the user."""
+    """
+    Validate that a question references a category owned by the user.
+
+    This check is used during question creation and updates, including
+    attempts to move a question into a different category.
+    """
     category_id = data.get("category_id")
 
     if category_id is None:
@@ -263,7 +315,20 @@ def validate_question_category(data, user_id):
 @api_bp.route("/categories", methods=["GET"])
 @jwt_required()
 def list_categories():
-    """Return a paginated list of categories."""
+    """
+    GET /api/categories
+
+    Return a paginated list of categories.
+
+    Query parameters:
+        page (optional): Page number; defaults to 1.
+        per_page (optional): Page size; defaults to 10.
+
+    Returns:
+        200: Serialized categories and pagination metadata.
+        400: Invalid pagination parameters.
+        401: Missing or invalid authentication token.
+    """
     pagination, error = get_pagination_args()
 
     if error:
@@ -287,7 +352,16 @@ def list_categories():
 @api_bp.route("/categories/<int:category_id>", methods=["GET"])
 @jwt_required()
 def get_category(category_id):
-    """Return a single category by its ID."""
+    """
+    GET /api/categories/<category_id>
+
+    Return a single category by its ID.
+
+    Returns:
+        200: Serialized category.
+        401: Missing or invalid authentication token.
+        404: Category does not exist.
+    """
     category, error = get_category_or_404(category_id)
 
     if error:
@@ -299,7 +373,19 @@ def get_category(category_id):
 @api_bp.route("/categories", methods=["POST"])
 @jwt_required()
 def create_category():
-    """Create a category owned by the authenticated user."""
+    """
+    POST /api/categories
+
+    Create a category owned by the authenticated user.
+
+    The user's ID comes from the verified JWT, not the request body.
+
+    Returns:
+        201: Newly created category.
+        400: Invalid JSON or schema validation failure.
+        401: Missing or invalid authentication token.
+        409: Database uniqueness or integrity conflict.
+    """
     data, error = read_json_object()
 
     if error:
@@ -330,12 +416,26 @@ def create_category():
 
 
 def update_category_record(category_id, partial=False):
-    """Shared implementation for category PUT and PATCH operations."""
+    """
+    Shared implementation for category PUT and PATCH operations.
+
+    Args:
+        category_id (int): ID of the category to update.
+        partial (bool): True for partial updates, False for full updates.
+
+    Returns:
+        200: Updated category.
+        400: Invalid request data.
+        403: Category belongs to another user.
+        404: Category does not exist.
+        409: Database conflict.
+    """
     category, error = get_category_or_404(category_id)
 
     if error:
         return error
 
+    # Verify ownership before changing any category fields.
     ownership_error = check_category_ownership(
         category,
         get_current_user_id(),
@@ -348,13 +448,6 @@ def update_category_record(category_id, partial=False):
 
     if error:
         return error
-
-    # Do not permit clients to transfer category ownership.
-    if "user_id" in data:
-        return error_response(
-            "user_id cannot be changed.",
-            400,
-        )
 
     try:
         validated_data = category_schema.load(
@@ -369,6 +462,7 @@ def update_category_record(category_id, partial=False):
             exc.messages,
         )
 
+    # Apply only the fields accepted by the schema.
     for key, value in validated_data.items():
         setattr(category, key, value)
 
@@ -383,21 +477,38 @@ def update_category_record(category_id, partial=False):
 @api_bp.route("/categories/<int:category_id>", methods=["PUT"])
 @jwt_required()
 def replace_category(category_id):
-    """Replace a category's editable fields."""
+    """
+    PUT /api/categories/<category_id>
+
+    Replace the editable fields of a category.
+
+    The request must provide all required schema fields.
+    """
     return update_category_record(category_id, partial=False)
 
 
 @api_bp.route("/categories/<int:category_id>", methods=["PATCH"])
 @jwt_required()
-def patch_category(category_id):
-    """Partially update a category."""
+def edit_category(category_id):
+    """
+    PATCH /api/categories/<category_id>
+
+    Update only the category fields supplied in the request.
+    """
     return update_category_record(category_id, partial=True)
 
 
 @api_bp.route("/categories/<int:category_id>", methods=["DELETE"])
 @jwt_required()
 def delete_category(category_id):
-    """Delete a category owned by the authenticated user."""
+    """
+    DELETE /api/categories/<category_id>
+
+    Delete a category owned by the authenticated user.
+
+    Related questions may also be deleted according to the configured
+    SQLAlchemy relationships and database foreign-key behavior.
+    """
     category, error = get_category_or_404(category_id)
 
     if error:
@@ -428,12 +539,21 @@ def delete_category(category_id):
 @jwt_required()
 def list_questions():
     """
+    GET /api/questions
+
     Return a paginated list of questions.
 
-    Optional filters:
-        category_id
-        difficulty
-        question_type
+    Optional query parameters:
+        page: Page number, starting at 1.
+        per_page: Number of records per page, from 1 to 100.
+        category_id: Filter questions by category ID.
+        difficulty: Filter questions by difficulty.
+        question_type: Filter questions by question type.
+
+    Returns:
+        200: Serialized questions and pagination metadata.
+        400: Invalid pagination or category filter.
+        401: Missing or invalid authentication token.
     """
     pagination, error = get_pagination_args()
 
@@ -441,12 +561,13 @@ def list_questions():
         return error
 
     page, per_page = pagination
-
     query = Question.query
 
-    # Apply optional category filtering.
     category_id = request.args.get("category_id")
+    difficulty = request.args.get("difficulty")
+    question_type = request.args.get("question_type")
 
+    # Validate the category filter before using it in the query.
     if category_id is not None:
         if not category_id.isdigit() or int(category_id) < 1:
             return error_response(
@@ -458,30 +579,14 @@ def list_questions():
             Question.category_id == int(category_id)
         )
 
-    # Apply optional difficulty filtering.
-    difficulty = request.args.get("difficulty")
-
-    if difficulty is not None:
-        if difficulty not in ("easy", "medium", "hard"):
-            return error_response(
-                "difficulty must be easy, medium, or hard.",
-                400,
-            )
-
+    # Apply optional filters. The schema and model validate allowed values
+    # when records are created or updated.
+    if difficulty:
         query = query.filter(
             Question.difficulty == difficulty
         )
 
-    # Apply optional question-type filtering.
-    question_type = request.args.get("question_type")
-
-    if question_type is not None:
-        if question_type not in ("multiple", "boolean"):
-            return error_response(
-                "question_type must be multiple or boolean.",
-                400,
-            )
-
+    if question_type:
         query = query.filter(
             Question.question_type == question_type
         )
@@ -502,7 +607,11 @@ def list_questions():
 @api_bp.route("/questions/<int:question_id>", methods=["GET"])
 @jwt_required()
 def get_question(question_id):
-    """Return a single question by ID."""
+    """
+    GET /api/questions/<question_id>
+
+    Return a single question by ID.
+    """
     question, error = get_question_or_404(question_id)
 
     if error:
@@ -514,7 +623,19 @@ def get_question(question_id):
 @api_bp.route("/questions", methods=["POST"])
 @jwt_required()
 def create_question():
-    """Create a question in a category owned by the authenticated user."""
+    """
+    POST /api/questions
+
+    Create a question in a category owned by the authenticated user.
+
+    Returns:
+        201: Newly created question.
+        400: Invalid JSON, schema data, or category reference.
+        401: Missing or invalid authentication token.
+        403: Category belongs to another user.
+        404: Referenced category does not exist.
+        409: Database integrity conflict.
+    """
     data, error = read_json_object()
 
     if error:
@@ -549,138 +670,24 @@ def create_question():
     return jsonify(question_schema.dump(question)), 201
 
 
-# ---------------------------------------------------------------------------
-# AI question generation
-# ---------------------------------------------------------------------------
-
-@api_bp.route("/questions/generate", methods=["POST"])
-@jwt_required()
-def generate_question():
-    """
-    Generate one AI trivia question and save it.
-
-    Expected JSON:
-        {
-            "category_id": 1,
-            "difficulty": "medium",
-            "question_type": "multiple"
-        }
-    """
-    data, error = read_json_object()
-
-    if error:
-        return error
-
-    # Validate category ID strictly before database lookup.
-    category_id = data.get("category_id")
-
-    if type(category_id) is not int or category_id < 1:
-        return error_response(
-            "category_id must be a positive integer.",
-            400,
-        )
-
-    # Apply defaults and validate options before calling the AI service.
-    difficulty = data.get("difficulty", "medium")
-    question_type = data.get("question_type", "multiple")
-
-    if difficulty not in ("easy", "medium", "hard"):
-        return error_response(
-            "difficulty must be easy, medium, or hard.",
-            400,
-        )
-
-    if question_type not in ("multiple", "boolean"):
-        return error_response(
-            "question_type must be multiple or boolean.",
-            400,
-        )
-
-    # Confirm the category exists.
-    category, error = get_category_or_404(category_id)
-
-    if error:
-        return error
-
-    # Verify ownership before making a potentially billable AI request.
-    user_id = get_current_user_id()
-    ownership_error = check_category_ownership(category, user_id)
-
-    if ownership_error:
-        return ownership_error
-
-    # Generate one question using the existing external API service.
-    try:
-        generated_data = generate_ai_question(
-            category_name=category.name,
-            difficulty=difficulty,
-            question_type=question_type,
-        )
-
-    except ValueError as exc:
-        return error_response(str(exc), 400)
-
-    except AITriviaError as exc:
-        # Keep provider internals and API credentials out of responses.
-        if "not configured" in str(exc).lower():
-            return error_response(
-                "AI question generation is not configured.",
-                503,
-            )
-
-        return error_response(
-            "Unable to generate a question right now.",
-            502,
-        )
-
-    # Check the AI response before attempting database insertion.
-    if not isinstance(generated_data, dict):
-        return error_response(
-            "The AI service returned an invalid question.",
-            502,
-        )
-
-    if (
-        generated_data.get("difficulty") != difficulty
-        or generated_data.get("question_type") != question_type
-    ):
-        return error_response(
-            "The AI service returned a question with unexpected settings.",
-            502,
-        )
-
-    # Always use the verified category ID, never one supplied by the AI.
-    generated_data["category_id"] = category.id
-
-    # Validate the AI-generated data using the existing question schema.
-    try:
-        validated_data = question_schema.load(generated_data)
-
-    except ValidationError as exc:
-        return error_response(
-            "The AI service generated an invalid question.",
-            502,
-            exc.messages,
-        )
-
-    # Save the question only after successful schema validation.
-    question = Question(**validated_data)
-    db.session.add(question)
-
-    error = commit_changes()
-
-    if error:
-        return error
-
-    return jsonify(question_schema.dump(question)), 201
-
-
 def update_question_record(question_id, partial=False):
     """
     Shared implementation for question PUT and PATCH operations.
 
-    Verify ownership before updating. If category_id changes, the new
-    category must also belong to the authenticated user.
+    Before updating, this function verifies that the authenticated user
+    owns the question's category. If category_id changes, the new category
+    must also belong to that user.
+
+    Args:
+        question_id (int): ID of the question to update.
+        partial (bool): True for PATCH, False for PUT.
+
+    Returns:
+        200: Updated question.
+        400: Invalid request data.
+        403: User does not own the question or target category.
+        404: Question or category does not exist.
+        409: Database integrity conflict.
     """
     question, error = get_question_or_404(question_id)
 
@@ -689,6 +696,7 @@ def update_question_record(question_id, partial=False):
 
     user_id = get_current_user_id()
 
+    # Check ownership of the question before accepting modifications.
     ownership_error = check_question_ownership(question, user_id)
 
     if ownership_error:
@@ -699,37 +707,43 @@ def update_question_record(question_id, partial=False):
     if error:
         return error
 
-    # Prevent clients from changing IDs, timestamps, or ownership.
-    protected_fields = {
+    # Clients cannot assign identifiers, timestamps, or ownership fields.
+    # Check submitted fields only, so existing database-generated fields
+    # do not accidentally cause valid PATCH requests to fail.
+    forbidden_fields = {
         "id",
         "created_at",
         "updated_at",
         "user_id",
     }
 
-    if protected_fields.intersection(data):
+    if forbidden_fields.intersection(data):
         return error_response(
-            "Protected fields cannot be changed.",
+            "Identifier and ownership fields cannot be changed.",
             400,
         )
 
-    # Merge PATCH data with existing values for complete validation.
     if partial:
-        current_data = question_schema.dump(question)
-        current_data.update(data)
+        # Serialize the existing question to preserve unchanged fields.
+        dumped_data = question_schema.dump(question)
 
-        # Only allow fields that the schema accepts as input.
-        data_to_validate = {
+        # Keep only fields accepted by the input schema.
+        # This excludes output-only fields such as id and timestamps.
+        merged_data = {
             key: value
-            for key, value in current_data.items()
+            for key, value in dumped_data.items()
             if key in question_schema.load_fields
         }
-    else:
-        data_to_validate = data
 
-    # Validate the target category and ownership.
+        # Apply the fields supplied in the PATCH request.
+        merged_data.update(data)
+    else:
+        # PUT validates the complete request supplied by the client.
+        merged_data = data
+    # Verify ownership of the selected category, including if the client
+    # attempts to move the question to a different category.
     category_error = validate_question_category(
-        data_to_validate,
+        merged_data,
         user_id,
     )
 
@@ -737,10 +751,7 @@ def update_question_record(question_id, partial=False):
         return category_error
 
     try:
-        validated_data = question_schema.load(
-            data_to_validate,
-            partial=False,
-        )
+        validated_data = question_schema.load(merged_data)
 
     except ValidationError as exc:
         return error_response(
@@ -749,7 +760,7 @@ def update_question_record(question_id, partial=False):
             exc.messages,
         )
 
-    # Apply only validated values to the existing record.
+    # Update only fields accepted by the schema.
     for key, value in validated_data.items():
         setattr(question, key, value)
 
@@ -764,21 +775,38 @@ def update_question_record(question_id, partial=False):
 @api_bp.route("/questions/<int:question_id>", methods=["PUT"])
 @jwt_required()
 def replace_question(question_id):
-    """Replace a question's editable fields."""
+    """
+    PUT /api/questions/<question_id>
+
+    Replace the editable fields of an existing question.
+
+    All required question fields must be present in the request.
+    """
     return update_question_record(question_id, partial=False)
 
 
 @api_bp.route("/questions/<int:question_id>", methods=["PATCH"])
 @jwt_required()
-def patch_question(question_id):
-    """Partially update a question."""
+def edit_question(question_id):
+    """
+    PATCH /api/questions/<question_id>
+
+    Update selected fields of an existing question.
+
+    Unchanged fields are preserved and the resulting complete question
+    is validated before the database is updated.
+    """
     return update_question_record(question_id, partial=True)
 
 
 @api_bp.route("/questions/<int:question_id>", methods=["DELETE"])
 @jwt_required()
 def delete_question(question_id):
-    """Delete a question owned by the authenticated user."""
+    """
+    DELETE /api/questions/<question_id>
+
+    Delete a question only if its category belongs to the current user.
+    """
     question, error = get_question_or_404(question_id)
 
     if error:
