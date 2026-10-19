@@ -247,62 +247,28 @@ def generate_ai_question(
         )
 
         # Ask for one question in a predictable JSON structure.
-
-        # Ask OpenAI for one question using a strict JSON schema.
         response = client.responses.create(
             model=os.getenv("OPENAI_MODEL", "gpt-4.1-mini"),
             instructions=(
                 "You create accurate educational trivia questions. "
-                "Follow the provided JSON schema exactly. "
-                "The question_type and difficulty must match the "
-                "requested values. For multiple-choice questions, "
-                "provide exactly three distinct incorrect answers. "
-                "For boolean questions, correct_answer must be the "
-                "string 'True' or 'False', and incorrect_answers "
-                "must contain only the opposite string. "
-                "Ensure the question and answers are factually accurate."
+                "Return only a valid JSON object with these keys: "
+                "text, question_type, difficulty, correct_answer, "
+                "incorrect_answers. Do not include category_id or "
+                "database IDs. The question_type and difficulty values "
+                "must match the requested values. For multiple-choice "
+                "questions, provide exactly three distinct incorrect "
+                "answers. For boolean questions, correct_answer must be "
+                "exactly 'True' or 'False', and incorrect_answers must "
+                "contain only the opposite value. Ensure the question "
+                "and answers are factually accurate."
             ),
             input=(
                 f"Create one {difficulty} difficulty trivia question "
                 f"about {category_name.strip()}. "
-                f"The question type must be {question_type}."
+                f"The question type must be {question_type}. "
+                "Return the JSON object only."
             ),
-            text={
-                "format": {
-                    "type": "json_schema",
-                    "name": "trivia_question",
-                    "strict": True,
-                    "schema": {
-                        "type": "object",
-                        "properties": {
-                            "text": {"type": "string"},
-                            "question_type": {
-                                "type": "string",
-                                "enum": ["multiple", "boolean"],
-                            },
-                            "difficulty": {
-                                "type": "string",
-                                "enum": ["easy", "medium", "hard"],
-                            },
-                            "correct_answer": {"type": "string"},
-                            "incorrect_answers": {
-                                "type": "array",
-                                "items": {"type": "string"},
-                            },
-                        },
-                        "required": [
-                            "text",
-                            "question_type",
-                            "difficulty",
-                            "correct_answer",
-                            "incorrect_answers",
-                        ],
-                        "additionalProperties": False,
-                    },
-                }
-            },
         )
-
 
         # Extract the model's text and parse it as JSON.
         generated_text = response.output_text
