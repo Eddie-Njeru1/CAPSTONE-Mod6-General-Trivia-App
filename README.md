@@ -147,3 +147,4 @@ Every push and pull request into `development` or `main` also runs through a Git
 | Quiz Logic & State | Quiz flow, scoring, streaks | [Austin Atogo](https://github.com/austinatogo1) |
 | Routing & Views | Pages and navigation | [Gloria Chebet](https://github.com/Gloria-Chebet1) |
 | UI/UX & QA | Styling | [Sandra Keeru](https://github.com/keerusandra) |
+
