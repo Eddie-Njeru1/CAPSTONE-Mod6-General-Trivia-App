@@ -1,4 +1,3 @@
-
 """
 Trivia API Routes
 =================
@@ -12,6 +11,8 @@ Features:
     - Question CRUD (Create, Read, Update, Delete).
     - Ownership checks to prevent users modifying another user's data.
     - Pagination for category and question lists.
+    - Optional category filtering: ?mine=true returns only the categories
+      owned by the authenticated user (used by the dashboard).
     - Optional question filtering by category, difficulty, and type.
     - Marshmallow schema validation for incoming data.
     - Consistent JSON responses and database error handling.
@@ -320,9 +321,15 @@ def list_categories():
 
     Return a paginated list of categories.
 
+    By default every category is returned, because any authenticated user
+    may read them. Use mine=true to see only the categories the current
+    user owns, which is what a "my categories" screen needs.
+
     Query parameters:
         page (optional): Page number; defaults to 1.
         per_page (optional): Page size; defaults to 10.
+        mine (optional): Set to "true" to return only the authenticated
+            user's own categories. Any other value returns all categories.
 
     Returns:
         200: Serialized categories and pagination metadata.
@@ -336,8 +343,15 @@ def list_categories():
 
     page, per_page = pagination
 
+    # Start with every category. When the client asks for mine=true, keep only
+    # the categories owned by the user in the verified JWT.
+    query = Category.query
+
+    if request.args.get("mine") == "true":
+        query = query.filter_by(user_id=get_current_user_id())
+
     result = (
-        Category.query
+        query
         .order_by(Category.id.asc())
         .paginate(
             page=page,
