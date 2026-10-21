@@ -61,7 +61,7 @@ The Dashboard is where a logged-in user manages their own **categories**. It sho
 | Edit | `PATCH /api/categories/<id>` |
 | Delete (also removes the category's questions) | `DELETE /api/categories/<id>` |
 
-The list is reloaded after every change so the screen always matches the database. A loading message shows while the list is fetched, a failed load shows its error in place of the list, and a failed add, edit or delete shows the server's message above the list while the form stays open. Questions are managed through the API; the Dashboard does not have a questions screen yet (see [Current limitations](#current-limitations)).
+The list is reloaded after every change so the screen always matches the database. A loading message shows while the list is fetched, a failed load shows its error in place of the list, and a failed add, edit or delete shows the server's message above the list while the form stays open. Questions are managed through the API; the Dashboard does not have a questions screen yet.
 
 ## Technologies used
 
