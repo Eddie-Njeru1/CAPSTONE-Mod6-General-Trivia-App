@@ -477,3 +477,186 @@ def test_leaderboard_respects_the_limit_and_skips_players_with_no_games(session)
 
     assert [row["total_points"] for row in board] == [30, 20]
     assert "nogames" not in [row["username"] for row in board]
+
+
+# =====================================================================
+# Phase 3: user roles and login tracking, category icon/color, blocklist
+# =====================================================================
+
+from datetime import datetime, timedelta, timezone
+
+from models import TokenBlocklist
+
+
+# ---------- User: role, is_active, login tracking ----------
+
+
+def test_new_user_gets_safe_defaults(session):
+    user = make_user()
+    session.add(user)
+    session.commit()
+
+    assert user.role == "user"
+    assert user.is_active is True
+    assert user.login_count == 0
+    assert user.last_login_at is None
+    assert user.is_admin is False
+
+
+def test_user_can_be_made_admin(session):
+    user = make_user(role="admin")
+    session.add(user)
+    session.commit()
+
+    assert user.role == "admin"
+    assert user.is_admin is True
+
+
+@pytest.mark.parametrize("bad_role", ["boss", "Admin", "", None])
+def test_role_must_be_user_or_admin(bad_role):
+    with pytest.raises(ValueError, match="role must be one of"):
+        make_user(role=bad_role)
+
+
+@pytest.mark.parametrize("bad_value", [1, 0, "yes", None])
+def test_is_active_must_be_true_or_false(bad_value):
+    with pytest.raises(ValueError, match="is_active must be true or false"):
+        make_user(is_active=bad_value)
+
+
+@pytest.mark.parametrize("bad_count", [-1, 1.5, "3", True, None])
+def test_login_count_must_be_a_non_negative_whole_number(bad_count):
+    with pytest.raises(ValueError, match="login_count must be a whole number"):
+        make_user(login_count=bad_count)
+
+
+def test_login_tracking_fields_can_be_updated(session):
+    user = make_user()
+    session.add(user)
+    session.commit()
+
+    user.login_count += 1
+    user.last_login_at = datetime(2026, 10, 27, 9, 30)
+    session.commit()
+
+    assert user.login_count == 1
+    assert user.last_login_at == datetime(2026, 10, 27, 9, 30)
+
+
+def test_database_rejects_an_unknown_role_even_with_raw_sql(session):
+    user = make_user()
+    session.add(user)
+    session.commit()
+
+    with pytest.raises(IntegrityError):
+        session.execute(text("UPDATE users SET role = 'boss' WHERE id = :id"), {"id": user.id})
+
+
+# ---------- Category: icon and color ----------
+
+
+def test_category_icon_and_color_are_optional(session):
+    category = make_category()
+    session.add(category)
+    session.commit()
+
+    assert category.icon is None
+    assert category.color is None
+
+
+def test_category_icon_and_color_are_cleaned(session):
+    category = make_category(icon="  Globe ", color="#2e86c1")
+    session.add(category)
+    session.commit()
+
+    assert category.icon == "globe"
+    assert category.color == "#2E86C1"  # stored in one consistent form
+
+
+@pytest.mark.parametrize("blank", ["", "   ", None])
+def test_blank_icon_and_color_are_stored_as_none(blank):
+    category = make_category(icon=blank, color=blank)
+    assert category.icon is None
+    assert category.color is None
+
+
+@pytest.mark.parametrize("bad_icon", ["globe icon", "globe!", "x" * 41])
+def test_icon_must_be_a_short_simple_key(bad_icon):
+    with pytest.raises(ValueError, match="Icon must"):
+        make_category(icon=bad_icon)
+
+
+@pytest.mark.parametrize("bad_color", ["2E86C1", "#2E86C", "#2E86C1F", "#GGGGGG", "blue"])
+def test_color_must_be_a_hex_code(bad_color):
+    with pytest.raises(ValueError, match="Color must be a hex colour"):
+        make_category(color=bad_color)
+
+
+def test_database_rejects_a_short_color_even_with_raw_sql(session):
+    category = make_category()
+    session.add(category)
+    session.commit()
+
+    with pytest.raises(IntegrityError):
+        session.execute(
+            text("UPDATE categories SET color = '#FFF' WHERE id = :id"), {"id": category.id}
+        )
+
+
+# ---------- TokenBlocklist ----------
+
+
+def in_one_hour():
+    return datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(hours=1)
+
+
+def test_revoked_token_is_found(session):
+    TokenBlocklist.revoke("abc-123", in_one_hour())
+    session.commit()
+
+    assert TokenBlocklist.is_revoked("abc-123") is True
+    assert TokenBlocklist.is_revoked("some-other-token") is False
+
+
+def test_revoking_the_same_token_twice_keeps_one_row(session):
+    TokenBlocklist.revoke("abc-123", in_one_hour())
+    TokenBlocklist.revoke("abc-123", in_one_hour())
+    session.commit()
+
+    assert TokenBlocklist.query.count() == 1
+
+
+def test_jti_must_be_unique_in_the_database(session):
+    session.add_all([
+        TokenBlocklist(jti="dup", expires_at=in_one_hour()),
+        TokenBlocklist(jti="dup", expires_at=in_one_hour()),
+    ])
+    with pytest.raises(IntegrityError):
+        session.commit()
+
+
+@pytest.mark.parametrize("jti, expires_at", [("", in_one_hour()), ("abc", None), ("abc", "tomorrow")])
+def test_revoke_needs_a_jti_and_an_expiry_time(jti, expires_at):
+    with pytest.raises(ValueError):
+        TokenBlocklist.revoke(jti, expires_at)
+
+
+def test_remove_expired_deletes_only_old_tokens(session):
+    now = datetime(2026, 10, 27, 12, 0)
+    TokenBlocklist.revoke("expired", now - timedelta(minutes=1))
+    TokenBlocklist.revoke("still-valid", now + timedelta(minutes=30))
+    session.commit()
+
+    removed = TokenBlocklist.remove_expired(now=now)
+    session.commit()
+
+    assert removed == 1
+    assert TokenBlocklist.is_revoked("expired") is False
+    assert TokenBlocklist.is_revoked("still-valid") is True
+
+
+def test_blocklist_entry_gets_a_created_at_time(session):
+    entry = TokenBlocklist.revoke("abc-123", in_one_hour())
+    session.commit()
+
+    assert entry.created_at is not None
