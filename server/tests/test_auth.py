@@ -1,6 +1,6 @@
 # This tests for authentication by testing user registration, login, logout, token validation, password security and user model validation. 
 
-from datetime import timedelta
+from datetime import datetime, timedelta
 import pytest
 from flask_jwt_extended import create_access_token
 from sqlalchemy import text
@@ -358,3 +358,280 @@ class TestUserModel:
 
         # Recover the session after the expected database error.
         db.session.rollback()
+
+# Roles, login tracking, account deactivation and admin access
+# Test that signup and login responses include the user's role
+class TestRoleInResponses:
+
+    def test_signup_returns_the_user_role(self, client, user_data):
+        user = client.post("/api/auth/signup", json=user_data).get_json()["user"] # A new account should report the default role.
+        assert user["role"] == "user"
+
+    def test_login_returns_the_user_role(self, client, registered_user):
+        response = client.post(
+            "/api/auth/login",
+            json={"email": "edd@email.com", "password": "secret123"},
+        ) # The login response should include the role for the frontend.
+        assert response.get_json()["user"]["role"] == "user"
+
+    def test_me_returns_the_user_role(self, client, admin_headers):
+        user = client.get("/api/auth/me", headers=admin_headers).get_json()["user"] # An admin's role should come back from /me.
+        assert user["role"] == "admin"
+
+    def test_responses_follow_the_agreed_user_shape(self, client, user_data):
+        user = client.post("/api/auth/signup", json=user_data).get_json()["user"] # Only the contract fields are returned.
+        assert set(user) == {"id", "username", "email", "role", "created_at"}
+
+# Test that signup can never be used to become an admin
+class TestSignupIgnoresRole:
+
+    @pytest.mark.parametrize("requested", ["admin", "ADMIN", "superuser"])
+    def test_signup_ignores_a_requested_role(self, client, user_data, requested):
+        user_data["role"] = requested # Try to sneak a role in through the request body.
+        response = client.post("/api/auth/signup", json=user_data)
+        assert response.status_code == 201
+        assert response.get_json()["user"]["role"] == "user"
+
+    def test_stored_role_is_user_after_a_role_request(self, client, user_data):
+        user_data["role"] = "admin"
+        client.post("/api/auth/signup", json=user_data)
+        assert User.query.filter_by(username="edd").first().role == "user" # Check the database, not just the response.
+
+# Test login tracking: last_login_at and login_count
+class TestLoginTracking:
+
+    def test_signup_counts_as_the_first_login(self, client, user_data):
+        client.post("/api/auth/signup", json=user_data)
+        user = User.query.filter_by(username="edd").first()
+        assert user.login_count == 1
+        assert user.last_login_at is not None
+
+    def test_each_login_adds_one_to_the_count(self, client, registered_user):
+        for _ in range(2): # Log in twice after signing up.
+            client.post(
+                "/api/auth/login",
+                json={"email": "edd@email.com", "password": "secret123"},
+            )
+        assert User.query.filter_by(username="edd").first().login_count == 3
+
+    def test_login_updates_last_login_at(self, client, registered_user):
+        user = User.query.filter_by(username="edd").first()
+        user.last_login_at = datetime(2000, 1, 1) # Set an old time to compare against.
+        db.session.commit()
+        client.post(
+            "/api/auth/login",
+            json={"email": "edd@email.com", "password": "secret123"},
+        )
+        db.session.refresh(user) # Reload the values saved by the route.
+        assert user.last_login_at > datetime(2000, 1, 1)
+
+    def test_failed_login_does_not_change_tracking(self, client, registered_user):
+        client.post(
+            "/api/auth/login",
+            json={"email": "edd@email.com", "password": "wrong-password"},
+        ) # A wrong password must not count as a login.
+        assert User.query.filter_by(username="edd").first().login_count == 1
+
+# Test account deactivation on login and on existing tokens
+class TestDeactivatedAccounts:
+
+    def test_deactivated_user_cannot_log_in(self, client, inactive_user):
+        response = client.post(
+            "/api/auth/login",
+            json={"email": "gone@email.com", "password": "secret123"},
+        )
+        assert response.status_code == 403
+        assert response.get_json() == {"error": "Account is deactivated"}
+
+    def test_deactivated_login_does_not_change_tracking(self, client, inactive_user):
+        client.post(
+            "/api/auth/login",
+            json={"email": "gone@email.com", "password": "secret123"},
+        ) # A blocked login must not be counted.
+        db.session.refresh(inactive_user)
+        assert inactive_user.login_count == 0
+        assert inactive_user.last_login_at is None
+
+    def test_wrong_password_on_a_deactivated_account_gets_the_normal_401(
+        self, client, inactive_user
+    ):
+        response = client.post(
+            "/api/auth/login",
+            json={"email": "gone@email.com", "password": "wrong-password"},
+        ) # Account status is only revealed once the password is correct.
+        assert response.status_code == 401
+        assert response.get_json()["error"] == "Invalid email or password"
+
+    def test_existing_token_is_refused_once_the_account_is_deactivated(
+        self, client, auth_headers
+    ):
+        assert client.get("/api/auth/me", headers=auth_headers).status_code == 200
+        user = User.query.filter_by(username="edd").first()
+        user.is_active = False # Deactivate after the token was issued.
+        db.session.commit()
+        response = client.get("/api/auth/me", headers=auth_headers)
+        assert response.status_code == 403
+        assert response.get_json()["error"] == "Account is deactivated"
+
+    def test_reactivated_user_can_log_in_again(self, client, inactive_user):
+        inactive_user.is_active = True
+        db.session.commit()
+        response = client.post(
+            "/api/auth/login",
+            json={"email": "gone@email.com", "password": "secret123"},
+        )
+        assert response.status_code == 200
+
+# Register two throwaway routes that use the decorators, so the decorators are tested here without depending on the admin routes built elsewhere
+@pytest.fixture
+def guarded_routes(app):
+    from flask import jsonify
+    from utils.auth import active_user_required, admin_required
+
+    @active_user_required
+    def active_only():
+        return jsonify({"ok": True})
+
+    @admin_required
+    def admin_only():
+        return jsonify({"ok": True})
+
+    app.add_url_rule("/test/active-only", "active_only", active_only) # must be added before the first request
+    app.add_url_rule("/test/admin-only", "admin_only", admin_only)
+
+
+# Test the @admin_required decorator in utils/auth.py
+class TestAdminRequired:
+
+    def test_no_token_returns_401(self, client, guarded_routes):
+        response = client.get("/test/admin-only")
+        assert response.status_code == 401
+        assert response.get_json()["error"] == "Authentication required"
+
+    def test_garbage_token_returns_401(self, client, guarded_routes):
+        response = client.get(
+            "/test/admin-only",
+            headers={"Authorization": "Bearer not-a-real-token"},
+        )
+        assert response.status_code == 401
+
+    def test_regular_user_returns_403(self, client, guarded_routes, other_headers):
+        response = client.get("/test/admin-only", headers=other_headers)
+        assert response.status_code == 403
+        assert response.get_json() == {"error": "Admin access required"}
+
+    def test_admin_is_allowed(self, client, guarded_routes, admin_headers):
+        response = client.get("/test/admin-only", headers=admin_headers)
+        assert response.status_code == 200
+
+    def test_deactivated_admin_returns_403(self, client, guarded_routes, make_user, headers_for):
+        user = make_user("boss", "boss@email.com", role="admin", is_active=False)
+        response = client.get("/test/admin-only", headers=headers_for(user))
+        assert response.status_code == 403
+        assert response.get_json()["error"] == "Account is deactivated"
+
+    def test_role_is_checked_in_the_database_on_every_request(
+        self, client, guarded_routes, admin_user, admin_headers
+    ):
+        assert client.get("/test/admin-only", headers=admin_headers).status_code == 200
+        admin_user.role = "user" # Demote after the token was issued.
+        db.session.commit()
+        response = client.get("/test/admin-only", headers=admin_headers)
+        assert response.status_code == 403 # The old token no longer grants admin access.
+
+    def test_token_for_a_deleted_user_returns_401(
+        self, client, guarded_routes, admin_user, admin_headers
+    ):
+        db.session.delete(admin_user)
+        db.session.commit()
+        assert client.get("/test/admin-only", headers=admin_headers).status_code == 401
+
+    def test_revoked_admin_token_returns_401(
+        self, client, guarded_routes, admin_headers
+    ):
+        client.post("/api/auth/logout", headers=admin_headers)
+        response = client.get("/test/admin-only", headers=admin_headers)
+        assert response.status_code == 401
+        assert response.get_json()["error"] == "Token has been revoked"
+
+
+# Test the @active_user_required decorator in utils/auth.py
+class TestActiveUserRequired:
+
+    def test_no_token_returns_401(self, client, guarded_routes):
+        assert client.get("/test/active-only").status_code == 401
+
+    def test_active_user_is_allowed(self, client, guarded_routes, other_headers):
+        assert client.get("/test/active-only", headers=other_headers).status_code == 200
+
+    def test_deactivated_user_returns_403(self, client, guarded_routes, inactive_headers):
+        response = client.get("/test/active-only", headers=inactive_headers)
+        assert response.status_code == 403
+        assert response.get_json()["error"] == "Account is deactivated"
+
+
+# Test the admin creation command: server/cli.py (`flask create-admin`)
+class TestCreateAdminCommand:
+
+    @pytest.fixture
+    def admin_env(self, monkeypatch):
+        monkeypatch.setenv("ADMIN_USERNAME", "boss") # the three variables the command reads
+        monkeypatch.setenv("ADMIN_EMAIL", "Boss@Email.com")
+        monkeypatch.setenv("ADMIN_PASSWORD", "admin-pass-123")
+
+    @pytest.fixture
+    def run(self, app):
+        from cli import create_admin_command
+        runner = app.test_cli_runner()
+        return lambda: runner.invoke(create_admin_command) # run the command and return its result
+
+    def test_creates_an_admin_from_the_environment(self, run, admin_env):
+        result = run()
+        assert result.exit_code == 0
+        db.session.expire_all() # reload what the command saved
+        admin = User.query.filter_by(email="boss@email.com").one()
+        assert admin.role == "admin"
+        assert admin.check_password("admin-pass-123")
+
+    def test_never_prints_the_password(self, run, admin_env):
+        assert "admin-pass-123" not in run().output
+
+    def test_is_safe_to_run_twice(self, run, admin_env):
+        run()
+        second = run()
+        assert second.exit_code == 0
+        assert "already exists" in second.output
+        assert User.query.count() == 1 # no duplicate admin
+
+    def test_running_again_does_not_reset_the_password(self, run, admin_env, monkeypatch):
+        run()
+        monkeypatch.setenv("ADMIN_PASSWORD", "a-different-pass-1") # a changed value must not overwrite the admin
+        run()
+        db.session.expire_all()
+        assert User.query.one().check_password("admin-pass-123")
+
+    @pytest.mark.parametrize("missing", ["ADMIN_USERNAME", "ADMIN_EMAIL", "ADMIN_PASSWORD"])
+    def test_fails_when_a_variable_is_missing(self, run, admin_env, monkeypatch, missing):
+        monkeypatch.delenv(missing)
+        result = run()
+        assert result.exit_code != 0
+        assert User.query.count() == 0
+
+    def test_does_not_promote_an_existing_regular_user(self, run, admin_env, make_user):
+        make_user("sneaky", "boss@email.com", password="their-own-pass-1") # someone registered the admin's email first
+        result = run()
+        assert result.exit_code != 0
+        db.session.expire_all()
+        user = User.query.filter_by(email="boss@email.com").one()
+        assert user.role == "user" # still a regular user
+        assert not user.check_password("admin-pass-123") # password untouched
+
+    def test_fails_when_the_username_is_taken_by_someone_else(self, run, admin_env, make_user):
+        make_user("boss", "other@email.com")
+        assert run().exit_code != 0
+        assert User.query.count() == 1
+
+    def test_rejects_a_weak_password(self, run, admin_env, monkeypatch):
+        monkeypatch.setenv("ADMIN_PASSWORD", "short")
+        assert run().exit_code != 0
+        assert User.query.count() == 0
