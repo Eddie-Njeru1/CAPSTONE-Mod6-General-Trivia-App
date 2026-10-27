@@ -18,6 +18,8 @@ def create_app(config_class=Config): # Creates and configures the Flas app
     bcrypt.init_app(app) # connect password hashing to the Flask app
     jwt.init_app(app) # connect JWT  authentication to the flask app
 
+    from cli import create_admin_command # makes 'flask create-admin' available
+    app.cli.add_command(create_admin_command) # makes 'flask create-admin' available
     from routes.auth_routes import auth_bp # authentication routes for signup, login, logout and user details
     from routes.api_routes import api_bp # API routes for categories and trivia questions 
     from routes.quiz_attempt_routes import quiz_attempt_bp # saving quiz rounds and the scoreboard
