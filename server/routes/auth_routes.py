@@ -109,7 +109,7 @@ def logout():
 
 # Return details of currently logged in user 
 @auth_bp.get("/me")
-@active_user_required() # require a valid login token and an active account. deactivated users get 403
+@active_user_required # require a valid login token and an active account. deactivated users get 403
 def me():
     user = get_current_user() # retrieve the user associated with the current token
     return jsonify({"user": serialize_user(user)}), 200 # user public details 
