@@ -1,10 +1,11 @@
 # This contains shared pytest fixtures for the app's tests. 
-# Creates a test app, provides a test client and supplies test users and authentication tokens so tests can reuse setup.
+# Creates a test app, provides a test client and supplies test users(regular, admin, other and deactivated) and authentication tokens so tests can reuse setup.
 
 import pytest # create reusable test fixtures 
+from flask_jwt_extended import create_access_token # create login tokens directly for users made in the database
 from app import create_app # creates Flask application
 from config import TestConfig # test configuration
-from models import db # databse object
+from models import User, db # user model and databse object
 from utils.auth import revoked_tokens # set used to store revoked login tokens  
 
 # Use fewer bcrypt rounds to make password hashing faster during tests
@@ -66,3 +67,51 @@ def access_token(client, registered_user):
 @pytest.fixture
 def auth_headers(access_token):
     return {"Authorization": f"Bearer {access_token}"}
+
+# Create a user straight in the database. signup can't seta role or deactivate an account
+@pytest.fixture
+def make_user(app):
+    def _make_user(username, email, password="secret123", role="user", is_active=True):
+        user = User(username=username, email=email) # build the user 
+        user.set_password(password) # hash the password
+        user.role = role # user or admin
+        user.is_active = is_active # false makes a deactivated account
+        db.session.add(user)
+        db.session.commit() # save so the user gets an id
+        return user
+    return _make_user
+
+# Build request headers with a valid token for any user
+@pytest.fixture
+def headers_for():
+    def _headers_for(user):
+        token = create_access_token(identity=str(user.id)) # token for this user's id
+        return {"Authorization": f"Bearer {token}"}
+    return _headers_for
+
+# An admin account and its headers
+@pytest.fixture
+def admin_user(make_user):
+    return make_user("admin", "admin@email.com", role="admin")
+
+@pytest.fixture
+def admin_headers(admin_user, headers_for):
+    return headers_for(admin_user)
+
+# A second regualr user and their headers. For ownership and 403 tests
+@pytest.fixture
+def other_user(make_user):
+    return make_user("sam", "sam@email.com")
+
+@pytest.fixture
+def other_headers(other_user, headers_for):
+    return headers_for(other_user)
+
+# A deactivated account and its headers. Valid token that must be refused
+@pytest.fixture
+def inactive_user(make_user):
+    return make_user("gone","gone@email.com", is_active=False)
+
+@pytest.fixture
+def inactive_headers(inactive_user, headers_for):
+    return headers_for(inactive_user)

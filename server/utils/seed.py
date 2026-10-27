@@ -1,14 +1,11 @@
 # Fills the database with starter content: one demo user who owns the
 # 6 seed categories and their 30 questions (from utils/seed_data.py).
-#
-# Safe to run more than once: anything that already exists is skipped,
-# so running it again never creates duplicates or crashes.
-#
+# Safe to run more than once: anything that already exists is skipped, so running it again never creates duplicates or crashes.
+# It can also create the admin account from ADMIN_USERNAME, ADMIN_EMAIL and ADMIN_PASSWORD (see get_or_create_admin). `flask create-admin` uses the same function.
 # Run from the server/ folder:
-#     pipenv run python -m utils.seed
+# pipenv run python -m utils.seed
 
 import os
-
 from models import Category, Question, User, db
 from utils.seed_data import SEED_CATEGORIES
 
@@ -26,6 +23,37 @@ def get_or_create_demo_user():
 
     user = User(username=DEMO_USERNAME, email=DEMO_EMAIL)
     user.set_password(DEMO_PASSWORD)  # stores a bcrypt hash, never the password
+    db.session.add(user)
+    return user, True
+
+
+def get_or_create_admin():
+    """Return the admin from the ADMIN_* environment variables, creating it
+    the first time. Raises ValueError if it can't be done safely.
+
+    An existing account is never promoted or changed: if someone signed up
+    with the admin's email first, promoting them would hand over admin access.
+    """
+    username = os.environ.get("ADMIN_USERNAME", "").strip()
+    email = os.environ.get("ADMIN_EMAIL", "").strip().lower()
+    password = os.environ.get("ADMIN_PASSWORD", "")
+    if not (username and email and password):
+        raise ValueError("Set ADMIN_USERNAME, ADMIN_EMAIL and ADMIN_PASSWORD first")
+
+    user = User.query.filter_by(email=email).first()
+    if user:
+        if user.role != "admin":  # a regular account already uses this email
+            raise ValueError(
+                "That email already belongs to a regular user, so it was not promoted to admin"
+            )
+        return user, False  # the admin already exists, nothing to do
+
+    if User.query.filter_by(username=username).first():
+        raise ValueError("That username is already taken")
+
+    user = User(username=username, email=email)
+    user.set_password(password)  # stores a bcrypt hash, never the password
+    user.role = "admin"
     db.session.add(user)
     return user, True
 
@@ -74,3 +102,9 @@ if __name__ == "__main__":
             f"Database now has {User.query.count()} user(s), "
             f"{Category.query.count()} categories, {Question.query.count()} questions."
         )
+
+        # Create the admin too, but only when all three ADMIN_* variables are set.
+        if all(os.environ.get(n) for n in ("ADMIN_USERNAME", "ADMIN_EMAIL", "ADMIN_PASSWORD")):
+            admin, created = get_or_create_admin()
+            db.session.commit()
+            print(f"Admin '{admin.username}' {'created' if created else 'already exists'}.")

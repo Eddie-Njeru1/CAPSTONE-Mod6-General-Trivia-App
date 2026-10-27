@@ -1,11 +1,12 @@
 # This file defines the authentication blueprint for signup, login, logout and retrieving the logged-in user details.
 
+from datetime import datetime, timezone # record when a user last logged in
 from flask import Blueprint, jsonify, request # creates routes handling requests and returning JSON
 from flask_jwt_extended import create_access_token, get_jwt, jwt_required # functions that create and check login tokens 
 from sqlalchemy.exc import IntegrityError # raised when a database constraint is violated 
-from models.db import db # database cpnnection
+from models.db import db # database connection
 from models.user import User # User model
-from utils.auth import get_current_user, revoked_tokens # helpers for retrieving users and tracking revoked tokens 
+from utils.auth import active_user_required, get_current_user, revoked_tokens # helpers for retrieving users, blocking deactivated accounts and tracking revoked tokens 
 
 auth_bp = Blueprint("auth", __name__) # Blueprint to group authentication routes 
 
@@ -14,11 +15,16 @@ def serialize_user(user): # convert User object into a dictionary for JSON respo
         "id": user.id,
         "username": user.username,
         "email": user.email,
+        "role": user.role, # user or admin lets the frontend show admin-only pages
         "created_at": user.created_at.isoformat() if user.created_at else None,
     } # return public user details without exposing password hash
 
 def error(message, status): # standard JSON error message with HTTP code 
     return jsonify({"error": message}), status
+
+def record_login(user): #update login tracking fields on signup and login
+    user.last_login_at = datetime.now(timezone.utc).replace(tzinfo=None) # current UTC time stored without timezone to match the other Datetime columns 
+    user.login_count = (user.login_count or 0) + 1 # add one to the login count. new user has no value yet
 
 def read_fields(*names): # reuired fields from a JSON request body
     data = request.get_json(silent=True) # read the request body. return NOne if it isn't valid JSON
@@ -38,7 +44,7 @@ def read_fields(*names): # reuired fields from a JSON request body
 # Create new user account
 @auth_bp.post("/signup")
 def signup():
-    fields, problem = read_fields("username", "email", "password") # read and validate the required signup fields 
+    fields, problem = read_fields("username", "email", "password") # read and validate the required signup fields. only reads these three fields and ignores any other requested role  
     if problem:
         return problem
     username, email, password = fields # separate the submitted values 
@@ -57,6 +63,8 @@ def signup():
     # check if the email is already registered 
     if User.query.filter_by(email=user.email).first():
         return error("email is already registered", 409)
+
+    record_login(user) # siggning up counts as the first login
 
     # Add new user to the database session
     db.session.add(user)
@@ -81,7 +89,13 @@ def login():
 
     if user is None or not user.check_password(password): # reject incorrect credentials without rvealing whic value was wrong 
         return error("Invalid email or password", 401)
-    
+
+    if not user.is_active: # checked after the password so account status is only revealed to real owner 
+        return error("Account is deactivated", 403)
+
+    record_login(user) # update last_login_at and login_count
+    db.session.commit() # save the login tracking changes
+
     # login token using the user ID as a string 
     token = create_access_token(identity=str(user.id))
     return jsonify({"access_token": token, "user": serialize_user(user)}), 200 # tokken and the user's public details 
@@ -95,9 +109,7 @@ def logout():
 
 # Return details of currently logged in user 
 @auth_bp.get("/me")
-@jwt_required() # require a valid login token 
+@active_user_required # require a valid login token and an active account. deactivated users get 403
 def me():
     user = get_current_user() # retrieve the user associated with the current token
-    if user is None: # reject the request if the account no longer exists 
-        return error("User not found", 401)
     return jsonify({"user": serialize_user(user)}), 200 # user public details 
