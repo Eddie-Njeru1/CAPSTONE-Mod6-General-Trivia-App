@@ -1,5 +1,7 @@
 # Fills the database with starter content: one demo user who owns the
-# 6 seed categories and their 30 questions (from utils/seed_data.py).
+# 8 seed categories and their 80 questions (from utils/seed_data.py).
+# Phase 3: categories also get their icon and colour. Categories seeded
+# before Phase 3 get them filled in (only if empty, never overwritten).
 # Safe to run more than once: anything that already exists is skipped, so running it again never creates duplicates or crashes.
 # It can also create the admin account from ADMIN_USERNAME, ADMIN_EMAIL and ADMIN_PASSWORD (see get_or_create_admin). `flask create-admin` uses the same function.
 # Run from the server/ folder:
@@ -70,10 +72,20 @@ def seed_database():
         category = Category.query.filter_by(user=owner, name=data["name"]).first()
         if category is None:
             category = Category(
-                name=data["name"], description=data["description"], user=owner
+                name=data["name"],
+                description=data["description"],
+                icon=data["icon"],
+                color=data["color"],
+                user=owner,
             )
             db.session.add(category)
             added["categories"] += 1
+        else:
+            # Seeded before Phase 3: fill in the icon and colour if still empty.
+            if category.icon is None:
+                category.icon = data["icon"]
+            if category.color is None:
+                category.color = data["color"]
 
         existing_texts = {question.text for question in category.questions}
         for question_data in data["questions"]:
