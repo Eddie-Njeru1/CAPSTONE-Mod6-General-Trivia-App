@@ -63,7 +63,7 @@ def active_user_required(fn):
         user, problem = check_account() # confirm the account still exists and is active
         if problem:
             return problem
-        return fn(*args, *kwargs) # run the route 
+        return fn(*args, **kwargs) # run the route 
     return wrapper 
 
 #Protect ta route. valid token needed and the account must be an active admin
