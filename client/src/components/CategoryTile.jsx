@@ -1,7 +1,20 @@
-// Owner: Sandra
-// One interactive category tile with an icon and a colour.
-// STATUS: placeholder created during the Phase 3 setup. The owner replaces this comment when building the file.
+// Displays one clickable trivia category.
 
-export default function CategoryTile() {
-  return null // renders nothing until the owner builds it
+import { Link } from 'react-router-dom'
+import categoryIcons from '../utils/categoryIcons'
+
+function CategoryTile({ id, name }) {
+  const category = categoryIcons[id] || categoryIcons.default
+
+  return (
+    <Link
+      to={`/quiz?category=${id}`}
+      className="category-tile"
+      style={{ '--category-color': category.color }}
+    >
+      <span className="category-tile__name">{name}</span>
+    </Link>
+  )
 }
+
+export default CategoryTile
