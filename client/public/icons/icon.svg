@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- App icon: a white question mark on the app's purple (#6c63ff). -->
+  <!-- The artwork stays in the middle, so it still looks right when phones crop it into a circle. -->
+  <rect width="512" height="512" fill="#6c63ff"/>
+  <circle cx="256" cy="256" r="168" fill="#5148d9"/>
+  <path d="M206 212a50 50 0 1 1 78 41c-17 11-28 22-28 44v14"
+        fill="none" stroke="#ffffff" stroke-width="36" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="256" cy="362" r="22" fill="#ffffff"/>
+</svg>
