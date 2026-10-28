@@ -23,10 +23,12 @@ def create_app(config_class=Config): # Creates and configures the Flas app
     from routes.auth_routes import auth_bp # authentication routes for signup, login, logout and user details
     from routes.api_routes import api_bp # API routes for categories and trivia questions 
     from routes.quiz_attempt_routes import quiz_attempt_bp # saving quiz rounds and the scoreboard
+    from routes.admin_routes import admin_bp # admin-only routes for stats, users, categories and questions
 
     app.register_blueprint(auth_bp, url_prefix="/api/auth") # register authentication routes 
     app.register_blueprint(api_bp, url_prefix="/api") # reguster trivia API routes 
     app.register_blueprint(quiz_attempt_bp, url_prefix="/api") # quiz attempts and leaderboard
+    app.register_blueprint(admin_bp, url_prefix="/api/admin") # admin routes (every one requires an admin token)
 
 # Endpoint to check whether the API is running
     @app.get("/api/health")
@@ -44,4 +46,4 @@ def create_app(config_class=Config): # Creates and configures the Flas app
         return jsonify({"error": "Method not allowed"}), 405
 
 # Return fully configured Flask app
-    return app 
+    return app
