@@ -1,1 +1,132 @@
-/* Owner: Sandra. Styles for the category tiles and grid. Use the design tokens from global.css. */
+/* Category tiles and pagination. */
+
+.category-grid-wrapper {
+  width: 100%;
+}
+
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.category-tile {
+  min-height: 150px;
+  padding: 1.25rem;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  border: 2px solid transparent;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.category-tile::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 6px;
+  background: var(--category-color);
+}
+
+.category-tile:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--category-color);
+}
+
+.category-tile:focus-visible {
+  outline: 3px solid var(--category-color);
+  outline-offset: 3px;
+}
+
+.category-tile__icon {
+  font-size: 2.5rem;
+  line-height: 1;
+}
+
+.category-tile__name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.category-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.category-pagination__button {
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--primary);
+  color: white;
+  padding: 0.65rem 1rem;
+  font-weight: 600;
+}
+
+.category-pagination__button:hover:not(:disabled) {
+  background: var(--primary-dark);
+}
+
+.category-pagination__button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.category-pagination__status {
+  color: var(--text-light);
+  font-weight: 600;
+}
+
+.category-grid__empty {
+  text-align: center;
+  color: var(--text-light);
+  padding: 2rem;
+}
+
+@media (max-width: 700px) {
+  .category-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .category-tile {
+    min-height: 130px;
+  }
+}
+
+@media (max-width: 400px) {
+  .category-grid {
+    gap: 0.75rem;
+  }
+
+  .category-tile {
+    min-height: 115px;
+    padding: 1rem 0.5rem;
+  }
+
+  .category-tile__icon {
+    font-size: 2rem;
+  }
+
+  .category-tile__name {
+    font-size: 0.9rem;
+  }
+
+  .category-pagination {
+    gap: 0.5rem;
+  }
+}

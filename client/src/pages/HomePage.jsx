@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import CategoryCard from '../components/CategoryCard'
+import CategoryGrid from '../components/CategoryGrid'
 import { useCategories } from '../hooks/useCategories'
 import Loader from '../components/Loader'
 import ErrorMessage from '../components/ErrorMessage'
@@ -43,15 +43,7 @@ function HomePage() {
       <div className="category-section">
         <h2 className="category-section__title">Choose a Category</h2>
 
-        <div className="category-grid">
-          {categories.map((category) => (
-            <CategoryCard
-              key={category.id}
-              id={category.id}
-              name={category.name}
-            />
-          ))}
-        </div>
+        <CategoryGrid categories={categories} />
       </div>
     </section>
   )
