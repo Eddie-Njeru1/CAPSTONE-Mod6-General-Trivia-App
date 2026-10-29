@@ -1,7 +1,32 @@
-// Owner: Gloria
-// Layout for logged-in pages: side menu, top bar and the page content.
-// STATUS: placeholder created during the Phase 3 setup. The owner replaces this comment when building the file.
+// AppLayout.jsx
+// The page shell for logged-in pages: side menu on the left, the avatar menu at the
+// top right, and the current page in the middle. React Router's <Outlet /> is the
+// place where the matching child route (Home, Quiz, Dashboard...) is drawn.
+//
+// Used by: App.jsx, as a layout route wrapping the logged-in routes.
+// Depends on: SideMenu, UserMenu and layout.css.
 
-export default function AppLayout() {
-  return null // renders nothing until the owner builds it
+import { Outlet } from 'react-router-dom' // placeholder where the child page is rendered
+import SideMenu from './SideMenu'
+import UserMenu from './UserMenu'
+import '../../styles/layout.css' // layout styles are loaded here so main.jsx does not need to change
+
+function AppLayout() {
+  return (
+    <div className="app-layout">
+      <SideMenu />
+
+      <div className="app-layout__main">
+        <header className="app-layout__header">
+          <UserMenu />
+        </header>
+
+        <main className="app-layout__content">
+          <Outlet />
+        </main>
+      </div>
+    </div>
+  )
 }
+
+export default AppLayout
