@@ -14,14 +14,27 @@ on:
   pull_request:
     branches: [development, main]
 
+# CI only needs to read the code, so the workflow gets read-only access.
+permissions:
+  contents: read
+
+# If a new commit is pushed to the same branch or PR while a run is still
+# going, the older run is cancelled. Saves minutes and avoids confusing
+# results from outdated code.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  # A single job that installs, lints, tests, and builds the project,
-  # in that order — cheapest/fastest checks first, so a bad PR fails
-  # quickly instead of waiting through a full test run first.
+  # FRONTEND: installs, lints, tests, and builds the React app, in that
+  # order — cheapest/fastest checks first, so a bad PR fails quickly
+  # instead of waiting through a full test run first.
+  # (The job id stays "build-and-test" so any branch protection rule that
+  # requires this check keeps working.)
   build-and-test:
     runs-on: ubuntu-latest
 
-    # The React app now lives in client/, so every "run:" step below
+    # The React app lives in client/, so every "run:" step below
     # executes inside that folder. (This setting does not affect
     # "uses:" steps such as checkout and setup-node.)
     defaults:
@@ -38,8 +51,8 @@ jobs:
       # project's dependencies (React 19, Vite 8, ESLint 10) expect.
       # cache: 'npm' speeds up future runs by reusing downloaded
       # packages instead of fetching them from scratch every time.
-      # cache-dependency-path tells it where package-lock.json is now,
-      # since it moved into client/.
+      # cache-dependency-path tells it where package-lock.json is,
+      # since it lives inside client/.
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -66,6 +79,59 @@ jobs:
 
       # Confirms the app actually builds for production. This catches
       # issues lint and tests might miss, like a broken import that
-      # only fails at build time.
+      # only fails at build time. The build also generates the PWA
+      # manifest and service worker.
       - name: Build
         run: npm run build
+
+  # BACKEND: installs the Flask API's dependencies and runs the pytest
+  # suite. It runs in parallel with the frontend job, so neither one
+  # waits for the other. The tests use an in-memory SQLite database
+  # (TestConfig), so no PostgreSQL service or secrets are needed here.
+  backend-tests:
+    runs-on: ubuntu-latest
+
+    # All backend commands run inside server/ (pytest.ini lives there and
+    # makes `models`, `routes` and the other folders importable).
+    defaults:
+      run:
+        working-directory: server
+
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+
+      # Python 3.14 matches [requires] in server/Pipfile.
+      # cache: 'pip' reuses downloaded packages between runs, keyed on
+      # requirements.txt.
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+          cache: 'pip'
+          cache-dependency-path: server/requirements.txt
+
+      # requirements.txt is the same file Render installs from, so this
+      # tests the exact versions that get deployed. It holds only the
+      # runtime packages, so the two test tools (the Pipfile's
+      # [dev-packages]) are added on the next line.
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-mock
+
+      # Runs every test in server/tests/ (auth, models, categories,
+      # questions, admin routes, quiz attempts, seed data, external API).
+      - name: Run tests
+        run: python -m pytest -v
+
+      # The offline question pack (client/src/data/offlineQuestions.json) is
+      # generated from server/utils/seed_data.py. This fails if someone edits
+      # the seed questions but forgets to regenerate the pack, which would
+      # leave offline players with different questions than online ones.
+      # To fix a failure, run from server/:
+      #   pipenv run python -m utils.export_offline_pack
+      # and commit the updated JSON file.
+      - name: Check the offline question pack is up to date
+        run: python -m utils.export_offline_pack --check
