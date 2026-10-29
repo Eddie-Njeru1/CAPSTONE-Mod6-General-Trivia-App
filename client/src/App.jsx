@@ -1,52 +1,73 @@
-// App.jsx manages page navigation, displays the Navigation bar and shares login state (AuthProvider) and quiz score data (ScoreProvider) with all routes.
-// Public routes (/login, /signup) can be opened by anyone. Every other route is protected: ProtectedRoute redirects logged-out users to /login.
+// App.jsx
+// The route map for the whole app. It decides which page appears at which URL,
+// and who is allowed to see it.
+//
+//   Public (anyone):        /  (landing page), /login, /signup
+//   Logged-in users:        /home, /quiz, /results, /scoreboard, /dashboard
+//   Admins only:            /admin
+//   Anything else:          * (NotFoundPage)
+//
+// Logged-in pages are drawn inside AppLayout (side menu and avatar menu).
+// AuthProvider is the outermost wrapper so every page can call useAuth();
+// ScoreProvider shares the quiz score with the quiz, results and scoreboard pages.
 
-import { Routes, Route } from 'react-router-dom' // get routing components 
-import { AuthProvider } from './context/AuthProvider' // manages login state (user, token, login, signup, logout)
-import { ScoreProvider } from './context/ScoreContext' // manages quiz scores
-import NavBar from './components/NavBar' // gets navigation bar component
+import { Routes, Route } from 'react-router-dom' // routing components
+import { AuthProvider } from './context/AuthProvider' // login state: user, token, isAdmin, login, logout
+import { ScoreProvider } from './context/ScoreContext' // quiz score state
 import ProtectedRoute from './components/ProtectedRoute' // only lets logged-in users through
+import AdminRoute from './components/AdminRoute' // only lets admins through (built by Eddie)
+import AppLayout from './components/layout/AppLayout' // side menu + avatar menu shell
 
-// Import page components
-import HomePage from './pages/HomePage' 
+// Public pages
+import LandingPage from './pages/LandingPage'
+import LoginPage from './pages/LoginPage'
+import SignupPage from './pages/SignupPage'
+import NotFoundPage from './pages/NotFoundPage'
+
+// Logged-in pages
+import HomePage from './pages/HomePage'
 import QuizPage from './pages/QuizPage'
 import ResultsPage from './pages/ResultsPage'
 import ScoreboardPage from './pages/ScoreboardPage'
-import LoginPage from './pages/LoginPage'
-import SignupPage from './pages/SignupPage'
 import DashboardPage from './pages/DashboardPage'
 
+// Admin page
+import AdminPage from './pages/AdminPage'
 
-// Define main App component that brings the navigation bar, page routes, shared login state and shared quiz score state 
 function App() {
   return (
-    // AuthProvider is the outermost wrapper so NavBar and every page can call useAuth().
     <AuthProvider>
-      <ScoreProvider> 
-        <NavBar /> {/* Display the navigation bar across all pages*/} 
-        <div className="container">
-          <Routes> {/* Map each URL path to its page component*/} 
+      <ScoreProvider>
+        <Routes>
+          {/* Public routes: anyone can open these. The landing page sends
+              logged-in users on to /home by itself. */}
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
 
-            {/* Public routes: anyone can open these, logged in or not. */}
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/signup" element={<SignupPage />} />
-
-            {/* Protected routes: ProtectedRoute wraps them all. Logged-out users are sent to /login,
-                and after logging in they return to the page they asked for. */}
-            <Route element={<ProtectedRoute />}>
-              <Route path="/" element={<HomePage />} /> 
+          {/* Logged-in routes. ProtectedRoute redirects logged-out users to /login
+              (and brings them back afterwards). AppLayout adds the side menu. */}
+          <Route element={<ProtectedRoute />}>
+            <Route element={<AppLayout />}>
+              <Route path="/home" element={<HomePage />} />
               <Route path="/quiz" element={<QuizPage />} />
               <Route path="/results" element={<ResultsPage />} />
               <Route path="/scoreboard" element={<ScoreboardPage />} />
               <Route path="/dashboard" element={<DashboardPage />} />
-            </Route>
 
-          </Routes>
-        </div>     
+              {/* Admin-only route: AdminRoute sends everyone who is not an admin to /home. */}
+              <Route element={<AdminRoute />}>
+                <Route path="/admin" element={<AdminPage />} />
+              </Route>
+            </Route>
+          </Route>
+
+          {/* Any URL that matches nothing above */}
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
       </ScoreProvider>
     </AuthProvider>
   )
 }
 
-// Make the App component available to other files 
 export default App

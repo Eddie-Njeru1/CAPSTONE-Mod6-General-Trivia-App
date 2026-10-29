@@ -21,7 +21,7 @@ function AppLayout() {
           <UserMenu />
         </header>
 
-        <main className="app-layout__content">
+        <main className="app-layout__content container">
           <Outlet />
         </main>
       </div>

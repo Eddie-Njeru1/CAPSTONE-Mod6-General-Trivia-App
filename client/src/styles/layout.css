@@ -25,7 +25,8 @@
 
 .app-layout__content {
   flex: 1;
-  padding: 0 1.5rem 2rem;
+  width: min(100% - 2rem, 1200px); /* same width rule as .container in global.css */
+  padding-bottom: 2rem; /* side spacing now comes from .container */
 }
 
 /* ---------- Side menu ---------- */
@@ -175,7 +176,63 @@
     padding: 0.75rem 1rem;
   }
 
-  .app-layout__content {
-    padding: 0 1rem 1.5rem;
+   .app-layout__content {
+    padding-bottom: 1.5rem;
   }
+}
+
+/* ---------- Public landing page ---------- */
+.landing-page {
+  min-height: 100vh;
+  background: var(--background);
+}
+
+.landing-page__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.landing-page__brand {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+.landing-page__actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.landing-page__link {
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-md);
+  color: var(--text);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.landing-page__link:hover {
+  background: var(--background);
+}
+
+.landing-page__link--primary {
+  background: var(--primary);
+  color: #ffffff;
+}
+
+.landing-page__link--primary:hover {
+  background: var(--primary-dark);
+}
+
+.landing-page__link:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.landing-page__main {
+  padding: 1.5rem;
 }
