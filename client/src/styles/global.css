@@ -2221,3 +2221,14 @@ img {
     transform: none;
   }
 }
+/* Phase 3: note shown on the quiz page while playing the offline question pack */
+.quiz-page__offline {
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--primary);
+  border-radius: var(--radius-sm);
+  color: var(--text-light);
+  font-size: 0.95rem;
+}

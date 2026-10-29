@@ -21,7 +21,7 @@ function QuizPage() {
   const categoryId =
     categoryParam && categoryParam !== "mixed" ? categoryParam : null;
 
-  const { questions, loading, error, refetch } = useQuestions(
+  const { questions, loading, error, isOffline, refetch } = useQuestions(
     categoryId,
     QUESTIONS_PER_ROUND
   );
@@ -107,6 +107,13 @@ function QuizPage() {
 
   return (
     <section className="quiz-page">
+      {/* Phase 3: tell the player these questions came from the offline pack. */}
+      {isOffline && (
+        <p className="quiz-page__offline" role="status">
+          You're offline, so you're playing saved questions. Your score will sync when you're back online.
+        </p>
+      )}
+
       <QuestionCard
         question={currentQuestion}
         options={options[currentIndex]}
