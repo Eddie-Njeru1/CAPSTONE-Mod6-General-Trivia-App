@@ -1,1 +1,187 @@
-/* Owner: Gloria. Styles for the admin page. Use the design tokens from global.css. */
+/* admin.css
+   Styles for the admin portal (/admin): tabs, stat cards, filters, users table and
+   pagination. Uses the design tokens from global.css (Sandra's file). */
+
+.admin-page h1 {
+  margin: 0 0 1rem;
+  color: var(--text);
+}
+
+/* ---------- Tabs ---------- */
+.admin-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.admin-tabs__tab {
+  padding: 0.6rem 1.1rem;
+  border: none;
+  border-bottom: 3px solid transparent;
+  background: transparent;
+  color: var(--text-light);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.admin-tabs__tab--active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
+.admin-tabs__tab:focus-visible,
+.admin-table button:focus-visible,
+.admin-filters button:focus-visible,
+.admin-pagination button:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* ---------- Messages ---------- */
+.admin-status {
+  color: var(--text-light);
+}
+
+.admin-page__error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--error);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--error);
+}
+
+/* ---------- Stat cards ---------- */
+.admin-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 1rem;
+}
+
+.admin-stats__card {
+  padding: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.admin-stats__value {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+.admin-stats__label {
+  margin: 0.25rem 0 0;
+  color: var(--text-light);
+}
+
+/* ---------- Filters ---------- */
+.admin-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.admin-filters__label {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.admin-filters input,
+.admin-filters select {
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+}
+
+/* ---------- Buttons inside the admin area ---------- */
+.admin-filters button,
+.admin-pagination button,
+.admin-table button,
+.admin-page__error button {
+  padding: 0.45rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.admin-filters button[type='submit'] {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #ffffff;
+}
+
+.admin-filters button:hover,
+.admin-pagination button:hover:not(:disabled),
+.admin-table button:hover:not(:disabled) {
+  background: var(--background);
+}
+
+.admin-table button:disabled,
+.admin-pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.admin-table__danger {
+  color: var(--error);
+  border-color: var(--error);
+}
+
+/* ---------- Table ---------- */
+/* The wrapper scrolls sideways on narrow screens instead of breaking the layout. */
+.admin-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 0.65rem 0.8rem;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.admin-table th {
+  background: var(--background);
+  color: var(--text-light);
+  font-weight: 600;
+}
+
+.admin-table__actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+/* ---------- Pagination ---------- */
+.admin-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+  color: var(--text-light);
+}
