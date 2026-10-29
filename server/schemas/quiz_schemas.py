@@ -49,6 +49,7 @@ class CategorySchema(Schema):
     are managed by the database and cannot be supplied as writable fields.
     """
 
+
     # The database generates the category ID.
     id = fields.Integer(dump_only=True)
 
@@ -73,6 +74,23 @@ class CategorySchema(Schema):
             validate.Length(max=255),
             validate_optional_description,
         ],
+    )
+
+    # Optional icon identifier used by the category UI.
+    icon = fields.String(
+        allow_none=True,
+        load_default=None,
+        validate=validate.Length(max=40),
+    )
+
+    # Optional category colour in #RRGGBB format.
+    color = fields.String(
+        allow_none=True,
+        load_default=None,
+        validate=validate.Regexp(
+            r"^#[0-9A-Fa-f]{6}$",
+            error="Color must be a valid #RRGGBB hex value.",
+        ),
     )
 
     # Timestamps are generated and updated by the database.

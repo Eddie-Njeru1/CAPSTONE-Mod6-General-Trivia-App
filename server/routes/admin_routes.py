@@ -141,19 +141,17 @@ def commit_changes():
     try:
         db.session.commit()
         return None
+    except ValueError as exc:
+        # Model validators can raise ValueError during SQLAlchemy
+        # insert/update events. Return a client error instead of 500.
+        db.session.rollback()
+        return error_response(str(exc), 400)
     except IntegrityError:
         db.session.rollback()
         return error_response(
             "The requested change conflicts with existing data.",
             409,
         )
-    except SQLAlchemyError:
-        db.session.rollback()
-        return error_response(
-            "A database error occurred.",
-            500,
-        )
-
 
 def attach_user_counts(user):
     """
@@ -535,10 +533,14 @@ def create_category():
 
     current_user = get_current_user()
 
-    category = Category(
-        **validated_data,
-        user_id=current_user.id,
-    )
+    try:
+        category = Category(
+            **validated_data,
+            user_id=current_user.id,
+        )
+    except ValueError as exc:
+        # Category model validators can reject otherwise schema-valid values.
+        return error_response(str(exc), 400)
 
     db.session.add(category)
 
@@ -572,8 +574,12 @@ def update_category(category_id):
     # Ownership must never be changed through the admin category API.
     validated_data.pop("user_id", None)
 
-    for field, value in validated_data.items():
-        setattr(category, field, value)
+    try:
+        for field, value in validated_data.items():
+            setattr(category, field, value)
+    except ValueError as exc:
+        # Catch model validation errors before they become server errors.
+        return error_response(str(exc), 400)
 
     error = commit_changes()
 
@@ -717,7 +723,11 @@ def create_question():
         return error
 
     # Admins can create questions in any category.
-    question = Question(**validated_data)
+    try:
+        question = Question(**validated_data)
+    except ValueError as exc:
+        # Question model validators can reject schema-valid values.
+        return error_response(str(exc), 400)
 
     db.session.add(question)
 
@@ -757,8 +767,12 @@ def update_question(question_id):
         if error:
             return error
 
-    for field, value in validated_data.items():
-        setattr(question, field, value)
+    try:
+        for field, value in validated_data.items():
+            setattr(question, field, value)
+    except ValueError as exc:
+        # Catch model validation errors before the database commit.
+        return error_response(str(exc), 400)
 
     error = commit_changes()
 
