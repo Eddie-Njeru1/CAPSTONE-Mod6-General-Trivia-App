@@ -635,3 +635,34 @@ class TestCreateAdminCommand:
         monkeypatch.setenv("ADMIN_PASSWORD", "short")
         assert run().exit_code != 0
         assert User.query.count() == 0
+
+
+# Test that deactivated users are blocked on the quiz attempt routes
+class TestDeactivatedUsersOnQuizRoutes:
+
+    def test_deactivated_user_cannot_save_a_round(self, client, inactive_headers):
+        from models import QuizAttempt
+        response = client.post(
+            "/api/quiz-attempts",
+            json={"score": 1, "total_questions": 2},
+            headers=inactive_headers,
+        )
+        assert response.status_code == 403
+        assert response.get_json()["error"] == "Account is deactivated"
+        assert QuizAttempt.query.count() == 0 # nothing was saved
+
+    def test_deactivated_user_cannot_read_their_history(self, client, inactive_headers):
+        response = client.get("/api/quiz-attempts", headers=inactive_headers)
+        assert response.status_code == 403
+        assert response.get_json()["error"] == "Account is deactivated"
+
+    def test_token_issued_before_deactivation_is_refused(self, client, other_user, other_headers):
+        body = {"score": 1, "total_questions": 2}
+        assert client.post("/api/quiz-attempts", json=body, headers=other_headers).status_code == 201
+        other_user.is_active = False # deactivated after the token was issued
+        db.session.commit()
+        assert client.post("/api/quiz-attempts", json=body, headers=other_headers).status_code == 403
+
+    def test_leaderboard_stays_public(self, client):
+        assert client.get("/api/leaderboard").status_code == 200 # no token needed, as before
+        

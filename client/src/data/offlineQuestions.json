@@ -1,3 +1,912 @@
 {
-  "categories": []
+  "categories": [
+    {
+      "slug": "kenyan-history-culture",
+      "name": "Kenyan History & Culture",
+      "description": "Independence, leaders and milestones that shaped Kenya.",
+      "icon": "landmark",
+      "color": "#B03A2E",
+      "questions": [
+        {
+          "text": "In which year did Kenya gain independence?",
+          "question_type": "multiple",
+          "difficulty": "easy",
+          "correct_answer": "1963",
+          "incorrect_answers": [
+            "1960",
+            "1964",
+            "1957"
+          ]
+        },
+        {
+          "text": "Kiswahili is one of Kenya's official languages.",
+          "question_type": "boolean",
+          "difficulty": "easy",
+          "correct_answer": "True",
+          "incorrect_answers": [
+            "False"
+          ]
+        },
+        {
+          "text": "Who was Kenya's first President?",
+          "question_type": "multiple",
+          "difficulty": "medium",
+          "correct_answer": "Jomo Kenyatta",
+          "incorrect_answers": [
+            "Daniel arap Moi",
+            "Mwai Kibaki",
+            "Tom Mboya"
+          ]
+        },
+        {
+          "text": "Which Kenyan won the Nobel Peace Prize in 2004?",
+          "question_type": "multiple",
+          "difficulty": "medium",
+          "correct_answer": "Wangari Maathai",
+          "incorrect_answers": [
+            "Grace Ogot",
+            "Margaret Ogola",
+            "Ngũgĩ wa Thiong'o"
+          ]
+        },
+        {
+          "text": "In which year was Kenya's current constitution promulgated?",
+          "question_type": "multiple",
+          "difficulty": "hard",
+          "correct_answer": "2010",
+          "incorrect_answers": [
+            "2002",
+            "2007",
+            "2013"
+          ]
+        },
+        {
+          "text": "Which Kenyan national holiday is celebrated on 12 December?",
+          "question_type": "multiple",
+          "difficulty": "easy",
+          "correct_answer": "Jamhuri Day",
+          "incorrect_answers": [
+            "Madaraka Day",
+            "Mashujaa Day",
+            "Labour Day"
+          ]
+        },
+        {
+          "text": "Madaraka Day marks Kenya attaining internal self-rule in 1963.",
+          "question_type": "boolean",
+          "difficulty": "easy",
+          "correct_answer": "True",
+          "incorrect_answers": [
+            "False"
+          ]
+        },
+        {
+          "text": "Which movement led the armed struggle against British colonial rule in Kenya in the 1950s?",
+          "question_type": "multiple",
+          "difficulty": "medium",
+          "correct_answer": "Mau Mau",
+          "incorrect_answers": [
+            "Maji Maji",
+            "Chimurenga",
+            "Mfecane"
+          ]
+        },
+        {
+          "text": "Which Kenyan author wrote the novel 'Weep Not, Child'?",
+          "question_type": "multiple",
+          "difficulty": "medium",
+          "correct_answer": "Ngũgĩ wa Thiong'o",
+          "incorrect_answers": [
+            "Grace Ogot",
+            "Meja Mwangi",
+            "Binyavanga Wainaina"
+          ]
+        },
+        {
+          "text": "In which year did Kenya become a republic?",
+          "question_type": "multiple",
+          "difficulty": "hard",
+          "correct_answer": "1964",
+          "incorrect_answers": [
+            "1963",
+            "1966",
+            "1969"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "african-geography",
+      "name": "African Geography",
+      "description": "Capitals, lakes, mountains and countries across Africa.",
+      "icon": "globe",
+      "color": "#1E8449",
+      "questions": [
+        {
+          "text": "What is the capital city of Kenya?",
+          "question_type": "multiple",
+          "difficulty": "easy",
+          "correct_answer": "Nairobi",
+          "incorrect_answers": [
+            "Mombasa",
+            "Kisumu",
+            "Nakuru"
+          ]
+        },
+        {
+          "text": "Mount Kilimanjaro is located in Kenya.",
+          "question_type": "boolean",
+          "difficulty": "easy",
+          "correct_answer": "False",
+          "incorrect_answers": [
+            "True"
+          ]
+        },
+        {
+          "text": "Which is the largest lake in Africa by area?",
+          "question_type": "multiple",
+          "difficulty": "medium",
+          "correct_answer": "Lake Victoria",
+          "incorrect_answers": [
+            "Lake Tanganyika",
+            "Lake Malawi",
+            "Lake Turkana"
+          ]
+        },
+        {
+          "text": "What is the highest mountain in Kenya?",
+          "question_type": "multiple",
+          "difficulty": "medium",
+          "correct_answer": "Mount Kenya",
+          "incorrect_answers": [
+            "Mount Elgon",
+            "Mount Longonot",
+            "Mount Kilimanjaro"
+          ]
+        },
+        {
+          "text": "Which country has the largest land area in Africa?",
+          "question_type": "multiple",
+          "difficulty": "hard",
+          "correct_answer": "Algeria",
+          "incorrect_answers": [
+            "Democratic Republic of the Congo",
+            "Sudan",
+            "Libya"
+          ]
+        },
+        {
+          "text": "What is the capital city of Uganda?",
+          "question_type": "multiple",
+          "difficulty": "easy",
+          "correct_answer": "Kampala",
+          "incorrect_answers": [
+            "Entebbe",
+            "Jinja",
+            "Gulu"
+          ]
+        },
+        {
+          "text": "The Nile is generally considered the longest river in Africa.",
+          "question_type": "boolean",
+          "difficulty": "easy",
+          "correct_answer": "True",
+          "incorrect_answers": [
+            "False"
+          ]
+        },
+        {
+          "text": "Which Kenyan lake is the world's largest permanent desert lake?",
+          "question_type": "multiple",
+          "difficulty": "medium",
+          "correct_answer": "Lake Turkana",
+          "incorrect_answers": [
+            "Lake Naivasha",
+            "Lake Nakuru",
+            "Lake Baringo"
+          ]
+        },
+        {
+          "text": "Ethiopia is a landlocked country.",
+          "question_type": "boolean",
+          "difficulty": "medium",
+          "correct_answer": "True",
+          "incorrect_answers": [
+            "False"
+          ]
+        },
+        {
+          "text": "Which river forms much of the border between Zambia and Zimbabwe?",
+          "question_type": "multiple",
+          "difficulty": "hard",
+          "correct_answer": "Zambezi",
+          "incorrect_answers": [
+            "Limpopo",
+            "Orange",
+            "Congo"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "science-nature",
+      "name": "Science & Nature",
+      "description": "Everyday science, the human body and the natural world.",
+      "icon": "flask",
+      "color": "#2E86C1",
+      "questions": [
+        {
+          "text": "Which gas do plants absorb from the air for photosynthesis?",
+          "question_type": "multiple",
+          "difficulty": "easy",
+          "correct_answer": "Carbon dioxide",
+          "incorrect_answers": [
+            "Oxygen",
+            "Nitrogen",
+            "Hydrogen"
+          ]
+        },
+        {
+          "text": "At sea level, water boils at 100 °C.",
+          "question_type": "boolean",
+          "difficulty": "easy",
+          "correct_answer": "True",
+          "incorrect_answers": [
+            "False"
+          ]
+        },
+        {
+          "text": "What is the chemical symbol for gold?",
+          "question_type": "multiple",
+          "difficulty": "medium",
+          "correct_answer": "Au",
+          "incorrect_answers": [
+            "Ag",
+            "Gd",
+            "Go"
+          ]
+        },
+        {
+          "text": "Which planet is known as the Red Planet?",
+          "question_type": "multiple",
+          "difficulty": "medium",
+          "correct_answer": "Mars",
+          "incorrect_answers": [
+            "Jupiter",
+            "Venus",
+            "Mercury"
+          ]
+        },
+        {
+          "text": "What is the most abundant gas in Earth's atmosphere?",
+          "question_type": "multiple",
+          "difficulty": "hard",
+          "correct_answer": "Nitrogen",
+          "incorrect_answers": [
+            "Oxygen",
+            "Argon",
+            "Carbon dioxide"
+          ]
+        },
+        {
+          "text": "How many legs does an insect have?",
+          "question_type": "multiple",
+          "difficulty": "easy",
+          "correct_answer": "6",
+          "incorrect_answers": [
+            "4",
+            "8",
+            "10"
+          ]
+        },
+        {
+          "text": "The Sun is a star.",
+          "question_type": "boolean",
+          "difficulty": "easy",
+          "correct_answer": "True",
+          "incorrect_answers": [
+            "False"
+          ]
+        },
+        {
+          "text": "Which part of a cell contains most of its DNA?",
+          "question_type": "multiple",
+          "difficulty": "medium",
+          "correct_answer": "Nucleus",
+          "incorrect_answers": [
+            "Ribosome",
+            "Cell membrane",
+            "Cytoplasm"
+          ]
+        },
+        {
+          "text": "Sound travels faster in air than in water.",
+          "question_type": "boolean",
+          "difficulty": "medium",
+          "correct_answer": "False",
+          "incorrect_answers": [
+            "True"
+          ]
+        },
+        {
+          "text": "Roughly how fast does light travel in a vacuum?",
+          "question_type": "multiple",
+          "difficulty": "hard",
+          "correct_answer": "300,000 km per second",
+          "incorrect_answers": [
+            "30,000 km per second",
+            "3,000 km per second",
+            "3,000,000 km per second"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "sports",
+      "name": "Sports",
+      "description": "Football, rugby and Kenya's world-famous runners.",
+      "icon": "trophy",
+      "color": "#D68910",
+      "questions": [
+        {
+          "text": "How many players does a football team have on the pitch at once?",
+          "question_type": "multiple",
+          "difficulty": "easy",
+          "correct_answer": "11",
+          "incorrect_answers": [
+            "9",
+            "10",
+            "12"
+          ]
+        },
+        {
+          "text": "Eliud Kipchoge is a Kenyan marathon runner.",
+          "question_type": "boolean",
+          "difficulty": "easy",
+          "correct_answer": "True",
+          "incorrect_answers": [
+            "False"
+          ]
+        },
+        {
+          "text": "In which year did Eliud Kipchoge run the first marathon distance in under two hours?",
+          "question_type": "multiple",
+          "difficulty": "medium",
+          "correct_answer": "2019",
+          "incorrect_answers": [
+            "2017",
+            "2018",
+            "2021"
+          ]
+        },
+        {
+          "text": "How many players does a rugby union team have on the field at once?",
+          "question_type": "multiple",
+          "difficulty": "medium",
+          "correct_answer": "15",
+          "incorrect_answers": [
+            "13",
+            "11",
+            "7"
+          ]
+        },
+        {
+          "text": "Which Kenyan won the men's 800 m gold at the 2012 London Olympics, setting a world record?",
+          "question_type": "multiple",
+          "difficulty": "hard",
+          "correct_answer": "David Rudisha",
+          "incorrect_answers": [
+            "Wilson Kipketer",
+            "Paul Tergat",
+            "Ezekiel Kemboi"
+          ]
+        },
+        {
+          "text": "In which sport would you perform a slam dunk?",
+          "question_type": "multiple",
+          "difficulty": "easy",
+          "correct_answer": "Basketball",
+          "incorrect_answers": [
+            "Volleyball",
+            "Netball",
+            "Handball"
+          ]
+        },
+        {
+          "text": "A marathon is about 42.2 km long.",
+          "question_type": "boolean",
+          "difficulty": "easy",
+          "correct_answer": "True",
+          "incorrect_answers": [
+            "False"
+          ]
+        },
+        {
+          "text": "What is the nickname of Kenya's men's national football team?",
+          "question_type": "multiple",
+          "difficulty": "medium",
+          "correct_answer": "Harambee Stars",
+          "incorrect_answers": [
+            "Shujaa",
+            "Simbas",
+            "Malkia Strikers"
+          ]
+        },
+        {
+          "text": "What is the nickname of Kenya's national rugby sevens team?",
+          "question_type": "multiple",
+          "difficulty": "medium",
+          "correct_answer": "Shujaa",
+          "incorrect_answers": [
+            "Harambee Stars",
+            "Simbas",
+            "Malkia Strikers"
+          ]
+        },
+        {
+          "text": "In which city were the first modern Olympic Games held in 1896?",
+          "question_type": "multiple",
+          "difficulty": "hard",
+          "correct_answer": "Athens",
+          "incorrect_answers": [
+            "Paris",
+            "London",
+            "St. Louis"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "technology-computing",
+      "name": "Technology & Computing",
+      "description": "Computers, the web and Kenyan tech innovation.",
+      "icon": "laptop",
+      "color": "#7D3C98",
+      "questions": [
+        {
+          "text": "What does CPU stand for?",
+          "question_type": "multiple",
+          "difficulty": "easy",
+          "correct_answer": "Central Processing Unit",
+          "incorrect_answers": [
+            "Central Program Utility",
+            "Computer Personal Unit",
+            "Core Processing Utility"
+          ]
+        },
+        {
+          "text": "M-Pesa was launched in Kenya in 2007.",
+          "question_type": "boolean",
+          "difficulty": "easy",
+          "correct_answer": "True",
+          "incorrect_answers": [
+            "False"
+          ]
+        },
+        {
+          "text": "Which company launched M-Pesa?",
+          "question_type": "multiple",
+          "difficulty": "medium",
+          "correct_answer": "Safaricom",
+          "incorrect_answers": [
+            "Airtel",
+            "Telkom Kenya",
+            "Equity Bank"
+          ]
+        },
+        {
+          "text": "What does HTTP stand for?",
+          "question_type": "multiple",
+          "difficulty": "medium",
+          "correct_answer": "HyperText Transfer Protocol",
+          "incorrect_answers": [
+            "HighText Transfer Protocol",
+            "HyperText Transmission Process",
+            "Hyperlink Transfer Protocol"
+          ]
+        },
+        {
+          "text": "What is the decimal number 10 written in binary?",
+          "question_type": "multiple",
+          "difficulty": "hard",
+          "correct_answer": "1010",
+          "incorrect_answers": [
+            "1001",
+            "1100",
+            "1110"
+          ]
+        },
+        {
+          "text": "What does 'www' stand for in a web address?",
+          "question_type": "multiple",
+          "difficulty": "easy",
+          "correct_answer": "World Wide Web",
+          "incorrect_answers": [
+            "World Web Window",
+            "Wide World Web",
+            "Web World Wide"
+          ]
+        },
+        {
+          "text": "RAM keeps its data after the computer is switched off.",
+          "question_type": "boolean",
+          "difficulty": "easy",
+          "correct_answer": "False",
+          "incorrect_answers": [
+            "True"
+          ]
+        },
+        {
+          "text": "Which language is mainly used to style web pages?",
+          "question_type": "multiple",
+          "difficulty": "medium",
+          "correct_answer": "CSS",
+          "incorrect_answers": [
+            "HTML",
+            "Python",
+            "SQL"
+          ]
+        },
+        {
+          "text": "The Python programming language is named after the comedy group Monty Python.",
+          "question_type": "boolean",
+          "difficulty": "medium",
+          "correct_answer": "True",
+          "incorrect_answers": [
+            "False"
+          ]
+        },
+        {
+          "text": "Which port does HTTPS use by default?",
+          "question_type": "multiple",
+          "difficulty": "hard",
+          "correct_answer": "443",
+          "incorrect_answers": [
+            "80",
+            "21",
+            "8080"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "general-knowledge",
+      "name": "General Knowledge",
+      "description": "A little bit of everything.",
+      "icon": "lightbulb",
+      "color": "#17A589",
+      "questions": [
+        {
+          "text": "How many days are there in a leap year?",
+          "question_type": "multiple",
+          "difficulty": "easy",
+          "correct_answer": "366",
+          "incorrect_answers": [
+            "365",
+            "364",
+            "367"
+          ]
+        },
+        {
+          "text": "The Kenyan shilling is Kenya's official currency.",
+          "question_type": "boolean",
+          "difficulty": "easy",
+          "correct_answer": "True",
+          "incorrect_answers": [
+            "False"
+          ]
+        },
+        {
+          "text": "Which ocean borders Kenya's coast?",
+          "question_type": "multiple",
+          "difficulty": "medium",
+          "correct_answer": "Indian Ocean",
+          "incorrect_answers": [
+            "Atlantic Ocean",
+            "Pacific Ocean",
+            "Arctic Ocean"
+          ]
+        },
+        {
+          "text": "The Great Wall of China is visible from the Moon with the naked eye.",
+          "question_type": "boolean",
+          "difficulty": "medium",
+          "correct_answer": "False",
+          "incorrect_answers": [
+            "True"
+          ]
+        },
+        {
+          "text": "How many bones are there in the adult human body?",
+          "question_type": "multiple",
+          "difficulty": "hard",
+          "correct_answer": "206",
+          "incorrect_answers": [
+            "201",
+            "212",
+            "196"
+          ]
+        },
+        {
+          "text": "How many continents are there?",
+          "question_type": "multiple",
+          "difficulty": "easy",
+          "correct_answer": "7",
+          "incorrect_answers": [
+            "5",
+            "6",
+            "8"
+          ]
+        },
+        {
+          "text": "The Earth takes about 365 days to orbit the Sun.",
+          "question_type": "boolean",
+          "difficulty": "easy",
+          "correct_answer": "True",
+          "incorrect_answers": [
+            "False"
+          ]
+        },
+        {
+          "text": "What colour do you get by mixing blue and yellow paint?",
+          "question_type": "multiple",
+          "difficulty": "medium",
+          "correct_answer": "Green",
+          "incorrect_answers": [
+            "Purple",
+            "Orange",
+            "Brown"
+          ]
+        },
+        {
+          "text": "How many sides does a hexagon have?",
+          "question_type": "multiple",
+          "difficulty": "medium",
+          "correct_answer": "6",
+          "incorrect_answers": [
+            "5",
+            "7",
+            "8"
+          ]
+        },
+        {
+          "text": "Which country has the largest population in Africa?",
+          "question_type": "multiple",
+          "difficulty": "hard",
+          "correct_answer": "Nigeria",
+          "incorrect_answers": [
+            "Ethiopia",
+            "Egypt",
+            "Democratic Republic of the Congo"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "music-entertainment",
+      "name": "Music & Entertainment",
+      "description": "Songs, instruments, film and Kenyan music.",
+      "icon": "music",
+      "color": "#AD1457",
+      "questions": [
+        {
+          "text": "How many strings does a standard guitar have?",
+          "question_type": "multiple",
+          "difficulty": "easy",
+          "correct_answer": "6",
+          "incorrect_answers": [
+            "4",
+            "5",
+            "8"
+          ]
+        },
+        {
+          "text": "Benga is a popular music style that started in Kenya.",
+          "question_type": "boolean",
+          "difficulty": "easy",
+          "correct_answer": "True",
+          "incorrect_answers": [
+            "False"
+          ]
+        },
+        {
+          "text": "Which instrument has black and white keys?",
+          "question_type": "multiple",
+          "difficulty": "easy",
+          "correct_answer": "Piano",
+          "incorrect_answers": [
+            "Guitar",
+            "Violin",
+            "Trumpet"
+          ]
+        },
+        {
+          "text": "Which Kenyan band released the hit song 'Sura Yako'?",
+          "question_type": "multiple",
+          "difficulty": "medium",
+          "correct_answer": "Sauti Sol",
+          "incorrect_answers": [
+            "Elani",
+            "H_art the Band",
+            "Kenge Kenge"
+          ]
+        },
+        {
+          "text": "How many musicians are in a quartet?",
+          "question_type": "multiple",
+          "difficulty": "medium",
+          "correct_answer": "4",
+          "incorrect_answers": [
+            "3",
+            "5",
+            "8"
+          ]
+        },
+        {
+          "text": "The song 'Jambo Bwana' was recorded by the Kenyan band Them Mushrooms.",
+          "question_type": "boolean",
+          "difficulty": "medium",
+          "correct_answer": "True",
+          "incorrect_answers": [
+            "False"
+          ]
+        },
+        {
+          "text": "Which award for achievement in film is nicknamed the 'Oscar'?",
+          "question_type": "multiple",
+          "difficulty": "medium",
+          "correct_answer": "Academy Award",
+          "incorrect_answers": [
+            "Grammy Award",
+            "Emmy Award",
+            "Tony Award"
+          ]
+        },
+        {
+          "text": "Who composed the 'Moonlight Sonata'?",
+          "question_type": "multiple",
+          "difficulty": "hard",
+          "correct_answer": "Ludwig van Beethoven",
+          "incorrect_answers": [
+            "Wolfgang Amadeus Mozart",
+            "Johann Sebastian Bach",
+            "Frédéric Chopin"
+          ]
+        },
+        {
+          "text": "Which actress won an Oscar for her role in '12 Years a Slave'?",
+          "question_type": "multiple",
+          "difficulty": "hard",
+          "correct_answer": "Lupita Nyong'o",
+          "incorrect_answers": [
+            "Wanuri Kahiu",
+            "Sarah Hassan",
+            "Catherine Kamau"
+          ]
+        },
+        {
+          "text": "Kenya's national anthem is based on a traditional Pokomo lullaby.",
+          "question_type": "boolean",
+          "difficulty": "hard",
+          "correct_answer": "True",
+          "incorrect_answers": [
+            "False"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "food-drink",
+      "name": "Food & Drink",
+      "description": "Kenyan dishes, ingredients and food from around the world.",
+      "icon": "utensils",
+      "color": "#CA6F1E",
+      "questions": [
+        {
+          "text": "What is the main ingredient of ugali?",
+          "question_type": "multiple",
+          "difficulty": "easy",
+          "correct_answer": "Maize flour",
+          "incorrect_answers": [
+            "Wheat flour",
+            "Rice",
+            "Potatoes"
+          ]
+        },
+        {
+          "text": "Chapati is made from wheat flour.",
+          "question_type": "boolean",
+          "difficulty": "easy",
+          "correct_answer": "True",
+          "incorrect_answers": [
+            "False"
+          ]
+        },
+        {
+          "text": "Which fruit is the main ingredient of guacamole?",
+          "question_type": "multiple",
+          "difficulty": "easy",
+          "correct_answer": "Avocado",
+          "incorrect_answers": [
+            "Mango",
+            "Banana",
+            "Pawpaw"
+          ]
+        },
+        {
+          "text": "What does 'nyama choma' mean in English?",
+          "question_type": "multiple",
+          "difficulty": "medium",
+          "correct_answer": "Grilled meat",
+          "incorrect_answers": [
+            "Boiled fish",
+            "Fried chicken",
+            "Meat stew"
+          ]
+        },
+        {
+          "text": "Which leafy vegetable is the main ingredient of sukuma wiki?",
+          "question_type": "multiple",
+          "difficulty": "medium",
+          "correct_answer": "Collard greens (kale)",
+          "incorrect_answers": [
+            "Cabbage",
+            "Spinach",
+            "Lettuce"
+          ]
+        },
+        {
+          "text": "Kenya is one of the world's largest exporters of black tea.",
+          "question_type": "boolean",
+          "difficulty": "medium",
+          "correct_answer": "True",
+          "incorrect_answers": [
+            "False"
+          ]
+        },
+        {
+          "text": "Githeri is a mix of maize and which other ingredient?",
+          "question_type": "multiple",
+          "difficulty": "medium",
+          "correct_answer": "Beans",
+          "incorrect_answers": [
+            "Peas",
+            "Potatoes",
+            "Rice"
+          ]
+        },
+        {
+          "text": "Which country is the world's largest producer of coffee?",
+          "question_type": "multiple",
+          "difficulty": "hard",
+          "correct_answer": "Brazil",
+          "incorrect_answers": [
+            "Vietnam",
+            "Colombia",
+            "Ethiopia"
+          ]
+        },
+        {
+          "text": "Vanilla flavouring comes from the pods of which kind of plant?",
+          "question_type": "multiple",
+          "difficulty": "hard",
+          "correct_answer": "An orchid",
+          "incorrect_answers": [
+            "A palm",
+            "A lily",
+            "A rose"
+          ]
+        },
+        {
+          "text": "Botanically, a tomato is a fruit.",
+          "question_type": "boolean",
+          "difficulty": "hard",
+          "correct_answer": "True",
+          "incorrect_answers": [
+            "False"
+          ]
+        }
+      ]
+    }
+  ]
 }
