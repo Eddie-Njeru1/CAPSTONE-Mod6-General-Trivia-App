@@ -74,3 +74,16 @@ export function getOfflineQuestions({ category = MIXED, amount = 10, difficulty 
 
   return shuffle(matching).slice(0, amount)
 }
+
+// True when `id` is one of the pack's category slugs (e.g. "african-geography").
+// Open Trivia DB categories are numbers, so they are never offline categories.
+export function isOfflineCategory(id) {
+  return categories.some((category) => category.slug === id)
+}
+
+// True when an error means "we couldn't reach the internet" rather than
+// "the server answered with a problem". fetch() rejects with a TypeError
+// when there is no connection, and navigator.onLine is false when offline.
+export function isNetworkError(error) {
+  return !navigator.onLine || error instanceof TypeError
+}

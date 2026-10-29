@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { ScoreContext } from "./useScore";
 import { getPointsFor, getStreakMultiplier } from "../utils/quizHelpers";
 import { saveQuizAttempt } from "../services/scoreApi";
+import { queueRound, startAutoSync } from "../services/syncQueue";
 
 // localStorage key for past rounds. Kept in Phase 2 so guests (not logged
 // in) still see their history; logged-in rounds are also saved to the backend.
@@ -30,8 +31,13 @@ export function ScoreProvider({ children }) {
   const [bestStreak, setBestStreak] = useState(0);
   // past rounds, shaped { category, score, total } for ScoreboardPage
   const [history, setHistory] = useState(loadHistory);
-  // Backend save of the last round: "idle" | "saving" | "saved" | "failed" | "guest"
+  // Backend save of the last round: "idle" | "saving" | "saved" | "queued" | "guest"
+  // "queued" = it could not be sent (e.g. offline), so it waits in the sync queue.
   const [saveStatus, setSaveStatus] = useState("idle");
+
+  // Phase 3: send rounds that were queued while offline, now and whenever
+  // the browser comes back online.
+  useEffect(() => startAutoSync(), []);
 
   // Save history to the browser whenever it changes.
   useEffect(() => {
@@ -90,7 +96,16 @@ export function ScoreProvider({ children }) {
     // background: the results page shows straight away either way.
     if (totalQuestions > 0) {
       setSaveStatus("saving");
-      saveQuizAttempt(round).then(setSaveStatus);
+      saveQuizAttempt(round).then((status) => {
+        if (status === "failed") {
+          // Couldn't reach the server (e.g. offline): keep the round in the
+          // sync queue, which sends it as soon as the connection returns.
+          queueRound(round);
+          setSaveStatus("queued");
+        } else {
+          setSaveStatus(status);
+        }
+      });
     }
   }
 
