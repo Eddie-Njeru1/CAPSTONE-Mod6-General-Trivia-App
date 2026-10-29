@@ -39,13 +39,17 @@ Ownership:
 """
 
 from flask import Blueprint, jsonify, request
-from flask_jwt_extended import jwt_required
+from utils.auth import (
+    active_user_required,
+    get_current_user,
+    get_current_user_id,
+)
 from marshmallow import ValidationError
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 from models import Category, Question, db
 from schemas.quiz_schemas import CategorySchema, QuestionSchema
-from utils.auth import get_current_user_id
+
 
 
 # Create the blueprint used to group trivia API endpoints.
@@ -245,20 +249,18 @@ def get_question_or_404(question_id):
 
 def check_category_ownership(category, user_id):
     """
-    Ensure the authenticated user owns the specified category.
+    Allow the resource owner or an administrator to manage a category.
 
-    Args:
-        category: Category database model instance.
-        user_id (int): ID of the authenticated user.
-
-    Returns:
-        None if the user owns the category, otherwise a 403 response.
+    The current user's role is retrieved from the database rather than
+    trusted from the JWT token.
     """
-    if category.user_id != user_id:
-        return error_response(
-            "You do not have permission to access this category.",
-            403,
-        )
+    current_user = get_current_user()
+
+    # Allow the owner or an active administrator to proceed.
+    if category.user_id != user_id and current_user.role != "admin":
+        return jsonify({
+            "error": "You do not have permission to access this category."
+        }), 403
 
     return None
 
@@ -314,7 +316,7 @@ def validate_question_category(data, user_id):
 # ---------------------------------------------------------------------------
 
 @api_bp.route("/categories", methods=["GET"])
-@jwt_required()
+@active_user_required
 def list_categories():
     """
     GET /api/categories
@@ -364,7 +366,7 @@ def list_categories():
 
 
 @api_bp.route("/categories/<int:category_id>", methods=["GET"])
-@jwt_required()
+@active_user_required
 def get_category(category_id):
     """
     GET /api/categories/<category_id>
@@ -385,7 +387,7 @@ def get_category(category_id):
 
 
 @api_bp.route("/categories", methods=["POST"])
-@jwt_required()
+@active_user_required
 def create_category():
     """
     POST /api/categories
@@ -489,7 +491,7 @@ def update_category_record(category_id, partial=False):
 
 
 @api_bp.route("/categories/<int:category_id>", methods=["PUT"])
-@jwt_required()
+@active_user_required
 def replace_category(category_id):
     """
     PUT /api/categories/<category_id>
@@ -502,7 +504,7 @@ def replace_category(category_id):
 
 
 @api_bp.route("/categories/<int:category_id>", methods=["PATCH"])
-@jwt_required()
+@active_user_required
 def edit_category(category_id):
     """
     PATCH /api/categories/<category_id>
@@ -513,7 +515,7 @@ def edit_category(category_id):
 
 
 @api_bp.route("/categories/<int:category_id>", methods=["DELETE"])
-@jwt_required()
+@active_user_required
 def delete_category(category_id):
     """
     DELETE /api/categories/<category_id>
@@ -550,7 +552,7 @@ def delete_category(category_id):
 # ---------------------------------------------------------------------------
 
 @api_bp.route("/questions", methods=["GET"])
-@jwt_required()
+@active_user_required
 def list_questions():
     """
     GET /api/questions
@@ -619,7 +621,7 @@ def list_questions():
 
 
 @api_bp.route("/questions/<int:question_id>", methods=["GET"])
-@jwt_required()
+@active_user_required
 def get_question(question_id):
     """
     GET /api/questions/<question_id>
@@ -635,7 +637,7 @@ def get_question(question_id):
 
 
 @api_bp.route("/questions", methods=["POST"])
-@jwt_required()
+@active_user_required
 def create_question():
     """
     POST /api/questions
@@ -787,7 +789,7 @@ def update_question_record(question_id, partial=False):
 
 
 @api_bp.route("/questions/<int:question_id>", methods=["PUT"])
-@jwt_required()
+@active_user_required
 def replace_question(question_id):
     """
     PUT /api/questions/<question_id>
@@ -800,7 +802,7 @@ def replace_question(question_id):
 
 
 @api_bp.route("/questions/<int:question_id>", methods=["PATCH"])
-@jwt_required()
+@active_user_required
 def edit_question(question_id):
     """
     PATCH /api/questions/<question_id>
@@ -814,7 +816,7 @@ def edit_question(question_id):
 
 
 @api_bp.route("/questions/<int:question_id>", methods=["DELETE"])
-@jwt_required()
+@active_user_required
 def delete_question(question_id):
     """
     DELETE /api/questions/<question_id>

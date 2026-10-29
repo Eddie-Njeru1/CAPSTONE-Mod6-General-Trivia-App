@@ -822,6 +822,57 @@ def test_user_cannot_delete_another_users_question(
     assert response.status_code == 403
 
 
+def test_admin_can_update_another_users_question(
+    client,
+    admin_headers,
+    other_headers,
+):
+    """An administrator can update a question owned by another user."""
+    category = create_category(
+        client,
+        other_headers,
+        name="Other User Category",
+    )
+    category_id = category.get_json()["id"]
+
+    created = create_question(client, other_headers, category_id)
+    question_id = created.get_json()["id"]
+
+    response = client.patch(
+        f"{QUESTION_URL}/{question_id}",
+        headers=admin_headers,
+        json={"difficulty": "hard"},
+    )
+
+    assert response.status_code == 200
+    assert response.get_json()["difficulty"] == "hard"
+
+
+def test_admin_can_delete_another_users_question(
+    client,
+    admin_headers,
+    other_headers,
+):
+    """An administrator can delete a question owned by another user."""
+    category = create_category(
+        client,
+        other_headers,
+        name="Other User Category",
+    )
+    category_id = category.get_json()["id"]
+
+    created = create_question(client, other_headers, category_id)
+    question_id = created.get_json()["id"]
+
+    response = client.delete(
+        f"{QUESTION_URL}/{question_id}",
+        headers=admin_headers,
+    )
+
+    assert response.status_code == 200
+    assert response.get_json()["message"] == "Question deleted successfully."
+
+
 def test_owner_can_delete_question(
     client,
     auth_headers,

@@ -25,6 +25,12 @@ def test_category_routes_require_authentication(client):
 
     assert all(response.status_code == 401 for response in responses)
 
+def test_deactivated_user_is_blocked_on_categories(client, inactive_headers):
+    """A deactivated user must not access categories with an old valid token."""
+    response = client.get(CATEGORY_URL, headers=inactive_headers)
+
+    assert response.status_code == 403
+    assert response.get_json()["error"] == "Account is deactivated"
 
 def test_authenticated_user_can_list_categories(client, auth_headers):
     """The list endpoint should return items and pagination metadata."""
@@ -286,6 +292,39 @@ def test_user_cannot_delete_another_users_category(
     )
 
     assert response.status_code == 403
+
+
+def test_admin_can_update_another_users_category(
+    client, admin_headers, other_headers
+):
+    """An administrator can update a category owned by another user."""
+    created = create_category(client, other_headers, name="Other User Category")
+    category_id = created.get_json()["id"]
+
+    response = client.patch(
+        f"{CATEGORY_URL}/{category_id}",
+        headers=admin_headers,
+        json={"name": "Admin Updated Category"},
+    )
+
+    assert response.status_code == 200
+    assert response.get_json()["name"] == "Admin Updated Category"
+
+
+def test_admin_can_delete_another_users_category(
+    client, admin_headers, other_headers
+):
+    """An administrator can delete a category owned by another user."""
+    created = create_category(client, other_headers, name="Other User Category")
+    category_id = created.get_json()["id"]
+
+    response = client.delete(
+        f"{CATEGORY_URL}/{category_id}",
+        headers=admin_headers,
+    )
+
+    assert response.status_code == 200
+    assert response.get_json()["message"] == "Category deleted successfully."
 
 
 def test_owner_can_delete_category(client, auth_headers):
