@@ -660,3 +660,23 @@ def test_blocklist_entry_gets_a_created_at_time(session):
     session.commit()
 
     assert entry.created_at is not None
+
+
+def test_leaderboard_leaves_out_deactivated_players(session):
+    alice, cheater = make_user(username="alice"), make_user(username="cheater")
+    session.add_all([
+        make_attempt(user=alice, points=50),
+        make_attempt(user=cheater, points=999),
+    ])
+    session.commit()
+
+    cheater.is_active = False  # an admin deactivated the account
+    session.commit()
+
+    board = QuizAttempt.leaderboard()
+    assert [row["username"] for row in board] == ["alice"]
+    assert board[0]["rank"] == 1  # ranks close up, no gap where cheater was
+
+    cheater.is_active = True  # turned back on: back on the board, rounds kept
+    session.commit()
+    assert [row["username"] for row in QuizAttempt.leaderboard()] == ["cheater", "alice"]
