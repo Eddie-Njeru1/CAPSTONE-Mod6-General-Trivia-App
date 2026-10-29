@@ -6,7 +6,8 @@ from flask_jwt_extended import create_access_token, get_jwt, jwt_required # func
 from sqlalchemy.exc import IntegrityError # raised when a database constraint is violated 
 from models.db import db # database connection
 from models.user import User # User model
-from utils.auth import active_user_required, get_current_user, revoked_tokens # helpers for retrieving users, blocking deactivated accounts and tracking revoked tokens 
+from models.token_blocklist import TokenBlocklist # logged-out tokens, stored in the database
+from utils.auth import active_user_required, get_current_user # helpers for retrieving users and blocking deactivated accounts
 
 auth_bp = Blueprint("auth", __name__) # Blueprint to group authentication routes 
 
@@ -104,7 +105,11 @@ def login():
 @auth_bp.post("/logout")
 @jwt_required() # require a valid login token 
 def logout():
-    revoked_tokens.add(get_jwt()["jti"]) # add token's unique ID to the revoked token set
+    token = get_jwt() # the current token's details
+    expires_at = datetime.fromtimestamp(token["exp"], tz=timezone.utc) # when it would have expired anyway
+    TokenBlocklist.revoke(token["jti"], expires_at) # save its unique ID in the token_blocklist table
+    TokenBlocklist.remove_expired() # tidy up: tokens that expired already don't need a row
+    db.session.commit() # save both changes
     return jsonify({"message": "Logged out"}), 200 # confirms successful log out
 
 # Return details of currently logged in user 
