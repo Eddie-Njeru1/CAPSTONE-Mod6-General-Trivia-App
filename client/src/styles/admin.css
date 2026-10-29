@@ -185,3 +185,11 @@
   margin-top: 1rem;
   color: var(--text-light);
 }
+
+
+/* Long text cells (question text, answers) wrap instead of stretching the table */
+.admin-table td.admin-table__text {
+  white-space: normal;
+  min-width: 12rem;
+  max-width: 26rem;
+}

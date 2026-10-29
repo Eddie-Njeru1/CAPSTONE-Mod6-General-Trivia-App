@@ -77,6 +77,7 @@ function AdminPage() {
         {activeTab === 'questions' && (
           <AdminQuestions
             questions={admin.questions}
+             categories={admin.categories}
             pagination={admin.pagination.questions}
             loading={admin.loading.questions}
             onLoad={(params) => admin.loadQuestions(params).catch(() => {})}
