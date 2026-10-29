@@ -6,7 +6,6 @@ from flask_jwt_extended import create_access_token # create login tokens directl
 from app import create_app # creates Flask application
 from config import TestConfig # test configuration
 from models import User, db # user model and databse object
-from utils.auth import revoked_tokens # set used to store revoked login tokens  
 
 # Use fewer bcrypt rounds to make password hashing faster during tests
 class FastTestConfig(TestConfig):
@@ -26,13 +25,6 @@ def app():
 @pytest.fixture
 def client(app):
     return app.test_client()
-
-# Clear revoked tokens before and after evert test 
-@pytest.fixture(autouse=True)
-def clear_revoked_tokens():
-    revoked_tokens.clear() # remove tokens left over from previous tests
-    yield # run test
-    revoked_tokens.clear() # clear the tokens again after testing
 
 # Sample details for creating a test user 
 @pytest.fixture

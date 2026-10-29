@@ -7,12 +7,13 @@ from flask_jwt_extended import JWTManager, get_jwt_identity, verify_jwt_in_reque
 
 bcrypt = Bcrypt() # password security extension to be connected to the Flask app
 jwt = JWTManager() # extension to manage login tokens to be connected to Flask app
-revoked_tokens = set() # this set will store IDs of tokens that have been revoked 
-
-# Check if a token has been revoked
+# Check if a token has been revoked (logged out).
+# Revoked tokens are stored in the token_blocklist table, not in memory,
+# so a logout still counts after the server restarts or redeploys.
 @jwt.token_in_blocklist_loader
 def is_token_revoked(jwt_header, jwt_payload):
-    return jwt_payload["jti"] in revoked_tokens # return True if token's unique ID is in the revoked tokens set
+    from models import TokenBlocklist # imported here: models/user.py imports bcrypt from this file
+    return TokenBlocklist.is_revoked(jwt_payload["jti"]) # True if this token's ID is in the table
 
 # Handle requests that don't include a login token
 @jwt.unauthorized_loader
