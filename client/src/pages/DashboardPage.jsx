@@ -1,4 +1,4 @@
-
+import QuestionManager from '../components/QuestionManager';
 import { useCallback, useEffect, useState } from 'react';
 import api from '../services/api'; // Axios client: adds the login token to every request
 import ResourceList from '../components/ResourceList';
@@ -177,13 +177,19 @@ function DashboardPage() {
 
       {/* Show the selected resource's details, or display the resource list. */}
       {selectedResource ? (
-        <ResourceDetail
-          resource={selectedResource}
-          onEdit={handleEditResource}
-          onDelete={handleDeleteResource}
-          onBack={() => setSelectedResource(null)}
-        />
-      ) : (
+  <>
+    <ResourceDetail
+      resource={selectedResource}
+      onEdit={handleEditResource}
+      onDelete={handleDeleteResource}
+      onBack={() => setSelectedResource(null)}
+    />
+
+    <QuestionManager
+      categoryId={selectedResource.id}
+    />
+  </>
+) : (
         !showForm && (
           <ResourceList
             resources={resources}
