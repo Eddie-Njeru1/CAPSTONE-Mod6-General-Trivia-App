@@ -97,23 +97,28 @@ function QuestionManager({ categoryId }) {
   }
 
   async function handleDelete(question) {
-    const confirmed = window.confirm(
-      'Are you sure you want to delete this question?'
-    )
+  const confirmed = window.confirm(
+    'Are you sure you want to delete this question?'
+  )
 
-    if (!confirmed) return
+  if (!confirmed) return
 
-    setError('')
+  setError('')
 
-    try {
-      await api.delete(`/questions/${question.id}`)
+  try {
+    await api.delete(`/questions/${question.id}`)
+
+    if (questions.length === 1 && page > 1) {
+      setPage(page - 1)
+    } else {
       await loadQuestions()
-    } catch (err) {
-      setError(
-        err.response?.data?.error || 'Unable to delete the question. Please try again.'
-      )
     }
+  } catch (err) {
+    setError(
+      err.response?.data?.error || 'Unable to delete the question. Please try again.'
+    )
   }
+}
 
   function handlePageChange(nextPage) {
     setPage(nextPage)
