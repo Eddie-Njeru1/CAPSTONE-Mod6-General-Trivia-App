@@ -3,6 +3,7 @@ import CategoryGrid from '../components/CategoryGrid'
 import { useCategories } from '../hooks/useCategories'
 import Loader from '../components/Loader'
 import ErrorMessage from '../components/ErrorMessage'
+import WelcomeBanner from '../components/WelcomeBanner'
 
 function HomePage() {
   const { categories, loading, error } = useCategories()
@@ -19,6 +20,8 @@ function HomePage() {
 
   return (
     <section className="home-page">
+      <WelcomeBanner />
+      
       {/* UI change: hero section gives the homepage a clear introduction. */}
       <div className="home-page__hero">
         <p className="home-page__eyebrow">Test your knowledge</p>
