@@ -23,5 +23,8 @@ dist-ssr
 *.sln
 *.sw?
 .env
+.env.*
+!.env.example
+*.save
 Pipfile
 Pipfile.lock
