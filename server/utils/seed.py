@@ -14,7 +14,7 @@ from utils.seed_data import SEED_CATEGORIES
 DEMO_USERNAME = "demo"
 DEMO_EMAIL = "demo@trivia.app"
 # Development only. Set SEED_DEMO_PASSWORD in .env to use your own.
-DEMO_PASSWORD = os.environ.get("SEED_DEMO_PASSWORD", "demo-password-123")
+DEMO_PASSWORD = os.environ.get("SEED_DEMO_PASSWORD") or "demo-password-123"
 
 
 def get_or_create_demo_user():
