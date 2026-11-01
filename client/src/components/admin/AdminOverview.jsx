@@ -1,7 +1,7 @@
 // AdminOverview.jsx
 // The Overview tab: a grid of cards showing the counts from GET /api/admin/stats.
-// A card is only drawn when the backend actually returns that field, so extra stats
-// added later (e.g. quiz attempts) can be listed in STAT_CARDS without other changes.
+// A card is only drawn when the backend actually returns that field, so any stat added
+// later only needs one new line in STAT_CARDS (no other change).
 //
 // Used by: AdminPage.jsx. Props: stats (object or null), loading (boolean).
 
@@ -13,6 +13,9 @@ const STAT_CARDS = [
   ['admin_users', 'Admins'],
   ['total_categories', 'Categories'],
   ['total_questions', 'Questions'],
+  ['total_quiz_attempts', 'Quiz attempts'],
+  ['new_users_7d', 'New users (7 days)'],
+  ['logins_7d', 'Logins (7 days)'],
 ]
 
 function AdminOverview({ stats, loading }) {
