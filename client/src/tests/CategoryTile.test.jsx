@@ -53,4 +53,20 @@ describe('CategoryTile', () => {
       '--category-color': categoryIcons.default.color,
     })
   })
+
+  it('uses the API-provided color', () => {
+    render(
+      <MemoryRouter>
+        <CategoryTile
+          id={9}
+          name="General Knowledge"
+          color="#123456"
+        />
+      </MemoryRouter>
+    )
+
+    expect(screen.getByRole('link')).toHaveStyle({
+      '--category-color': '#123456',
+    })
+  })
 })
