@@ -1,4 +1,4 @@
-// Maps Open Trivia categories to a simple icon and colour.
+// Maps category IDs and icon keys to their colours and icons.
 
 const categoryIcons = {
   9: { color: '#6c63ff' },
@@ -25,6 +25,16 @@ const categoryIcons = {
   30: { color: '#0d9488' },
   31: { color: '#db2777' },
   32: { color: '#475569' },
+
+  flask: { icon: 'flask', color: '#10b981' },
+  globe: { icon: 'globe', color: '#1E8449' },
+  landmark: { icon: 'landmark', color: '#B03A2E' },
+  laptop: { icon: 'laptop', color: '#3b82f6' },
+  lightbulb: { icon: 'lightbulb', color: '#f59e0b' },
+  music: { icon: 'music', color: '#ec4899' },
+  trophy: { icon: 'trophy', color: '#d97706' },
+  utensils: { icon: 'utensils', color: '#f97316' },
+
   mixed: { color: '#6c63ff' },
   default: { color: '#6b7280' },
 }

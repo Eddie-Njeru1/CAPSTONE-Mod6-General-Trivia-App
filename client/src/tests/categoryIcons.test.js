@@ -26,4 +26,22 @@ describe('categoryIcons', () => {
     expect(categoryIcons.default).toBeDefined()
     expect(categoryIcons.default.color).toMatch(/^#[0-9a-fA-F]{6}$/)
   })
+    it('contains mappings for all offline category icons', () => {
+    const iconKeys = [
+      'flask',
+      'globe',
+      'landmark',
+      'laptop',
+      'lightbulb',
+      'music',
+      'trophy',
+      'utensils',
+    ]
+
+    iconKeys.forEach((key) => {
+      expect(categoryIcons[key]).toBeDefined()
+      expect(categoryIcons[key].icon).toBe(key)
+      expect(categoryIcons[key].color).toMatch(/^#[0-9a-fA-F]{6}$/)
+    })
+  })
 })
