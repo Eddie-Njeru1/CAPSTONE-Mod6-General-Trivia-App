@@ -133,9 +133,14 @@ function QuestionManager({ categoryId }) {
       <div className="question-manager__header">
         <h2>Manage Questions</h2>
         {!showForm && (
-          <button type="button" onClick={startAdding}>
-            Add Question
-          </button>
+        <button 
+          type="button" 
+          className="question-manager__add-button"
+          onClick={startAdding}
+        >
+            
+          Add Question
+        </button>
         )}
       </div>
 

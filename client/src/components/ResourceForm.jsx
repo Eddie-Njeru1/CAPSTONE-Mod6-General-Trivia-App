@@ -54,20 +54,16 @@ function ResourceFormFields({ resource, onSubmit, onCancel }) {
   }
 
   return (
-    // Submit the form using handleSubmit.
     <form className="resource-form" onSubmit={handleSubmit}>
-      {/* Show the heading based on the current action. */}
       <h2>{resource ? 'Edit Resource' : 'Add Resource'}</h2>
 
       <div className="resource-form__field">
-        {/* Label the resource name input. */}
         <label htmlFor="resource-name">Resource Name</label>
 
         <input
           id="resource-name"
           type="text"
           value={name}
-          // Update the name as the user types.
           onChange={(event) => setName(event.target.value)}
           placeholder="Enter resource name"
           required
@@ -75,13 +71,11 @@ function ResourceFormFields({ resource, onSubmit, onCancel }) {
       </div>
 
       <div className="resource-form__field">
-        {/* Label the description field. */}
         <label htmlFor="resource-description">Description</label>
 
         <textarea
           id="resource-description"
           value={description}
-          // Update the description as the user types.
           onChange={(event) => setDescription(event.target.value)}
           placeholder="Enter resource description"
           rows="4"
@@ -89,14 +83,19 @@ function ResourceFormFields({ resource, onSubmit, onCancel }) {
       </div>
 
       <div className="resource-form__actions">
-        {/* Change the button text based on the current action. */}
-        <button type="submit">
+        <button
+          type="submit"
+          className="resource-form__button resource-form__button--submit"
+        >
           {resource ? 'Save Changes' : 'Add Resource'}
         </button>
 
-        {/* Show the Cancel button only when a callback is provided. */}
         {onCancel && (
-          <button type="button" onClick={onCancel}>
+          <button
+            type="button"
+            className="resource-form__button resource-form__button--cancel"
+            onClick={onCancel}
+          >
             Cancel
           </button>
         )}
