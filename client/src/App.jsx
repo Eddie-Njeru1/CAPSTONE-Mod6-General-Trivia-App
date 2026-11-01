@@ -7,6 +7,9 @@
 //   Admins only:            /admin
 //   Anything else:          * (NotFoundPage)
 //
+// Three PWA status components (offline banner, install button, update prompt) are
+// mounted above the routes, so they appear on every page, logged in or not.
+//
 // Logged-in pages are drawn inside AppLayout (side menu and avatar menu).
 // AuthProvider is the outermost wrapper so every page can call useAuth();
 // ScoreProvider shares the quiz score with the quiz, results and scoreboard pages.
@@ -17,6 +20,9 @@ import { ScoreProvider } from './context/ScoreContext' // quiz score state
 import ProtectedRoute from './components/ProtectedRoute' // only lets logged-in users through
 import AdminRoute from './components/AdminRoute' // only lets admins through (built by Eddie)
 import AppLayout from './components/layout/AppLayout' // side menu + avatar menu shell
+import OfflineBanner from './components/pwa/OfflineBanner' // shows a notice while the user is offline
+import InstallButton from './components/pwa/InstallButton' // lets the user install the app as a PWA
+import UpdatePrompt from './components/pwa/UpdatePrompt' // offers a refresh when a new version is ready
 
 // Public pages
 import LandingPage from './pages/LandingPage'
@@ -37,7 +43,12 @@ import AdminPage from './pages/AdminPage'
 function App() {
   return (
     <AuthProvider>
-      <ScoreProvider>
+           <ScoreProvider>
+        {/* PWA status components: rendered on every page, so they sit above the routes. */}
+        <OfflineBanner />
+        <InstallButton />
+        <UpdatePrompt />
+
         <Routes>
           {/* Public routes: anyone can open these. The landing page sends
               logged-in users on to /home by itself. */}
