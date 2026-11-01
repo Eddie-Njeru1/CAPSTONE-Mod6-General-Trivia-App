@@ -7,13 +7,14 @@ These endpoints provide administrator-only access to:
 
 All endpoints are protected by admin_required() from utils/auth.py.
 """
+from datetime import datetime, timedelta, timezone
 
 from flask import Blueprint, jsonify, request
 from sqlalchemy import func, or_
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from marshmallow import ValidationError
 
-from models import db, User, Category, Question
+from models import db, User, Category, Question, QuizAttempt
 from schemas.quiz_schemas import CategorySchema, QuestionSchema
 from schemas.admin_schemas import (
     admin_stats_schema,
@@ -160,6 +161,8 @@ def attach_user_counts(user):
     The counts are attached temporarily to the SQLAlchemy object so that
     AdminUserSchema can serialize them without changing the User model.
     """
+
+     # Count categories created by this user.
     user.category_count = (
         db.session.query(func.count(Category.id))
         .filter(Category.user_id == user.id)
@@ -167,12 +170,20 @@ def attach_user_counts(user):
         or 0
     )
 
+    # Count questions belonging to this user's categories.
     user.question_count = (
         db.session.query(func.count(Question.id))
         .join(Category, Question.category_id == Category.id)
         .filter(Category.user_id == user.id)
         .scalar()
         or 0
+    )
+
+    # Count the quiz attempts completed by this user.
+    user.attempt_count = (
+        db.session.query(func.count(QuizAttempt.id))
+        .filter(QuizAttempt.user_id == user.id)
+        .scalar() or 0
     )
 
     return user
@@ -182,7 +193,9 @@ def apply_user_filters(query):
     """Apply optional admin user-list filters."""
     role = request.args.get("role")
     is_active = request.args.get("is_active")
-    search = request.args.get("search")
+    # Use q as the standard search parameter.
+    # Keep search as a fallback for older clients.
+    search = request.args.get("q") or request.args.get("search")
 
     if role:
         if role not in User.ROLES:
@@ -258,6 +271,27 @@ def admin_stats():
         db.session.query(func.count(Question.id)).scalar() or 0
     )
 
+    # Calculate the UTC timestamp for seven days ago.
+    seven_days_ago = datetime.now(timezone.utc) - timedelta(days=7)
+
+    total_quiz_attempts = (
+        db.session.query(func.count(QuizAttempt.id)).scalar() or 0
+    )
+
+    new_users_7d = (
+        db.session.query(func.count(User.id))
+        .filter(User.created_at >= seven_days_ago)
+        .scalar()
+        or 0
+    )
+
+    logins_7d = (
+        db.session.query(func.count(User.id))
+        .filter(User.last_login_at >= seven_days_ago)
+        .scalar()
+        or 0
+    )
+
     stats = {
         "total_users": total_users,
         "active_users": active_users,
@@ -265,6 +299,9 @@ def admin_stats():
         "admin_users": admin_users,
         "total_categories": total_categories,
         "total_questions": total_questions,
+        "total_quiz_attempts": total_quiz_attempts,
+        "new_users_7d": new_users_7d,
+        "logins_7d": logins_7d,
     }
 
     return jsonify(admin_stats_schema.dump(stats)), 200
@@ -285,7 +322,7 @@ def list_users():
         ?role=admin
         ?is_active=true
         ?is_active=false
-        ?search=username-or-email
+        ?q=username-or-email
         ?page=1
         ?per_page=10
     """
