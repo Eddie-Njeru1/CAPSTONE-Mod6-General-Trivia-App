@@ -19,7 +19,7 @@ function AdminRoute({ children }) {
 
   // Not an admin - send them to /home. replace the back button will not return the to admin
   if (!isAdmin) {
-    return <Navigate to="home" replace />
+    return <Navigate to="/home" replace />
   }
 
   // Works two ways, like ProtectedRoute:

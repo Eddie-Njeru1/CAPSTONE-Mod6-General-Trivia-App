@@ -3,50 +3,50 @@
 Mark each item as Pass, Fail, or Not Tested.
 
 ## 1. Desktop
-- [ ] Landing page displays correctly.
-- [ ] Welcome banner and category tiles display correctly.
-- [ ] Category icons and colors display correctly.
-- [ ] Category pagination works.
-- [ ] Navigation links work.
-- [ ] Quiz loads and answers can be selected.
-- [ ] Results display correctly.
-- [ ] Scoreboard displays correctly.
-- [ ] Dashboard displays correctly.
+- [x] Landing page displays correctly.
+- [x] Welcome banner and category tiles display correctly.
+- [x] Category icons and colors display correctly.
+- [x] Category pagination works.
+- [x] Navigation links work.
+- [x] Quiz loads and answers can be selected.
+- [x] Results display correctly.
+- [x] Scoreboard displays correctly.
+- [x] Dashboard displays correctly.
 
 ## 2. Mobile
-- [ ] Layout fits a mobile screen.
-- [ ] Text and buttons are readable and usable.
-- [ ] Category tiles display correctly.
-- [ ] Pagination works.
-- [ ] Navigation is usable.
-- [ ] Quiz and results display correctly.
+- [x] Layout fits a mobile screen.
+- [x] Text and buttons are readable and usable.
+- [x] Category tiles display correctly.
+- [x] Pagination works.
+- [x] Navigation is usable.
+- [x] Quiz and results display correctly.
 
 ## 3. Authentication
 ### Logged out
-- [ ] Landing, login, and signup pages are accessible.
-- [ ] Protected routes redirect or block access.
+- [x] Landing, login, and signup pages are accessible.
+- [x] Protected routes redirect or block access.
 
 ### Logged-in normal user
-- [ ] Home, quiz, results, scoreboard, and dashboard are accessible.
-- [ ] Admin page is blocked.
+- [x] Home, quiz, results, scoreboard, and dashboard are accessible.
+- [x] Admin page is blocked.
 
 ### Logged-in admin
-- [ ] Admin page is accessible.
-- [ ] Admin controls are visible.
+- [x] Admin page is accessible.
+- [x] Admin controls are visible.
 
 ## 4. Installed PWA
-- [ ] App installs successfully.
-- [ ] App opens in standalone mode.
-- [ ] Layout displays correctly.
-- [ ] Offline indicator appears when disconnected.
-- [ ] App remains usable offline where supported.
-- [ ] Reconnecting restores online status.
-- [ ] Update prompt works when an update is available.
+- [x] App installs successfully.
+- [x] App opens in standalone mode.
+- [x] Layout displays correctly.
+- [x] Offline indicator appears when disconnected.
+- [x] App remains usable offline where supported.
+- [x] Reconnecting restores online status.
+- [x] Update prompt works when an update is available.
 
 ## 5. Final checks
-- [ ] No unexpected browser console errors.
-- [ ] No broken images or icons.
-- [ ] No horizontal scrolling on mobile.
+- [x] No unexpected browser console errors.
+- [x] No broken images or icons.
+- [x] No horizontal scrolling on mobile.
 
 ## Issues found
 Record any failed checks, steps to reproduce, and screenshots if available.
