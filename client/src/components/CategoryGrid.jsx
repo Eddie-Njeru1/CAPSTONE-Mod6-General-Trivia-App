@@ -29,6 +29,7 @@ function CategoryGrid({ categories = [] }) {
            id={category.id}
            name={category.name}
            color={category.color}
+           icon={category.icon}
          />
         ))}
       </div>

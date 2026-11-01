@@ -69,4 +69,17 @@ describe('CategoryTile', () => {
       '--category-color': '#123456',
     })
   })
+    it('renders the category icon', () => {
+    const { container } = render(
+      <MemoryRouter>
+        <CategoryTile
+          id={999}
+          name="Science"
+          icon="flask"
+        />
+      </MemoryRouter>
+    )
+
+    expect(container.querySelector('svg')).toBeInTheDocument()
+  })
 })
