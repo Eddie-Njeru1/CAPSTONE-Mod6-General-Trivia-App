@@ -20,9 +20,10 @@ import { useAuth } from '../../context/AuthContext' // who is logged in (to prot
 const PER_PAGE = 10
 
 // Builds the query string values, leaving out empty filters.
+// The search text is sent as "q", the name used in the Day 1 contract.
 function buildParams({ search, role, isActive, page }) {
   const params = { page, per_page: PER_PAGE }
-  if (search.trim()) params.search = search.trim()
+  if (search.trim()) params.q = search.trim()
   if (role) params.role = role
   if (isActive) params.is_active = isActive // "true" or "false"
   return params
@@ -163,6 +164,7 @@ function AdminUsers({ users, pagination, loading, onLoad, onChanged }) {
                 <th>Last login</th>
                 <th>Categories</th>
                 <th>Questions</th>
+                <th>Attempts</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -180,6 +182,7 @@ function AdminUsers({ users, pagination, loading, onLoad, onChanged }) {
                     <td>{formatDate(user.last_login_at)}</td>
                     <td>{user.category_count}</td>
                     <td>{user.question_count}</td>
+                    <td>{user.attempt_count}</td>
                     <td className="admin-table__actions">
                       <button type="button" disabled={isSelf || busy} onClick={() => toggleRole(user)}>
                         {user.role === 'admin' ? 'Make user' : 'Make admin'}
