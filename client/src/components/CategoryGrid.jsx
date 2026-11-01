@@ -25,10 +25,11 @@ function CategoryGrid({ categories = [] }) {
       <div className="category-grid">
         {visibleCategories.map((category) => (
           <CategoryTile
-            key={category.id}
-            id={category.id}
-            name={category.name}
-          />
+           key={category.id}
+           id={category.id}
+           name={category.name}
+           color={category.color}
+         />
         ))}
       </div>
 
