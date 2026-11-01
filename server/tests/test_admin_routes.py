@@ -1,8 +1,10 @@
 """Tests for the administrator API: access control, statistics, and users."""
 
+from datetime import datetime, timedelta, timezone
+
 import pytest
 
-from models import User, db
+from models import User, QuizAttempt, db
 
 
 ADMIN_URL = "/api/admin"
@@ -72,7 +74,50 @@ def test_admin_stats_returns_expected_counts(
     other_user,
     inactive_user,
 ):
-    """Dashboard counts should reflect the database records."""
+    """Dashboard counts should reflect current users and quiz activity."""
+
+    # Create two quiz attempts so the total attempt count is predictable.
+    db.session.add_all(
+        [
+            QuizAttempt(
+                user_id=admin_user.id,
+                score=8,
+                total_questions=10,
+                points=80,
+                best_streak=4,
+            ),
+            QuizAttempt(
+                user_id=other_user.id,
+                score=6,
+                total_questions=10,
+                points=60,
+                best_streak=3,
+            ),
+        ]
+    )
+
+    # Keep the admin account outside the seven-day registration window.
+    # Its recent login is tested separately through logins_7d.
+    admin_user.created_at = (
+        datetime.now(timezone.utc) - timedelta(days=10)
+    )
+    admin_user.last_login_at = (
+        datetime.now(timezone.utc) - timedelta(days=2)
+    )
+
+    # Make the other user a recent account.
+    # This lets the test verify the seven-day registration window.
+    other_user.created_at = (
+        datetime.now(timezone.utc) - timedelta(days=3)
+    )
+
+    # Keep the inactive account outside the seven-day window.
+    inactive_user.created_at = (
+        datetime.now(timezone.utc) - timedelta(days=10)
+    )
+
+    db.session.commit()
+
     response = client.get(
         f"{ADMIN_URL}/stats",
         headers=admin_headers,
@@ -82,12 +127,18 @@ def test_admin_stats_returns_expected_counts(
 
     data = response.get_json()
 
+    # Existing dashboard statistics.
     assert data["total_users"] == 3
     assert data["active_users"] == 2
     assert data["inactive_users"] == 1
     assert data["admin_users"] == 1
     assert data["total_categories"] == 0
     assert data["total_questions"] == 0
+
+    # Phase 3 activity statistics.
+    assert data["total_quiz_attempts"] == 2
+    assert data["new_users_7d"] == 1
+    assert data["logins_7d"] == 1
 
 
 # ---------------------------------------------------------------------------
@@ -112,6 +163,12 @@ def test_admin_can_list_users(client, admin_headers, admin_user, other_user):
 
     # Sensitive password hashes must never be exposed by the API.
     assert all("password_hash" not in user for user in data["users"])
+
+    # Each user response should include their quiz attempt count.
+    for user in data["users"]:
+        assert "attempt_count" in user
+        assert isinstance(user["attempt_count"], int)
+        assert user["attempt_count"] >= 0
 
 
 def test_admin_can_filter_users_by_role(
@@ -160,7 +217,7 @@ def test_admin_can_search_users_by_username(
     other_user,
 ):
     response = client.get(
-        f"{ADMIN_URL}/users?search=sam",
+        f"{ADMIN_URL}/users?q=sam",
         headers=admin_headers,
     )
 
@@ -174,6 +231,24 @@ def test_admin_can_search_users_by_username(
         or "sam" in user["email"].lower()
         for user in users
     )
+
+
+def test_admin_can_search_users_using_legacy_search_parameter(
+    client,
+    admin_headers,
+    other_user,
+):
+    """The old search parameter remains supported for existing clients."""
+    response = client.get(
+        f"{ADMIN_URL}/users?search=sam",
+        headers=admin_headers,
+    )
+
+    assert response.status_code == 200
+
+    users = response.get_json()["users"]
+
+    assert any(user["username"] == other_user.username for user in users)
 
 
 @pytest.mark.parametrize(

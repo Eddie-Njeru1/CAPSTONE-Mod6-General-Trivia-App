@@ -66,6 +66,11 @@ class AdminUserSchema(Schema):
         dump_only=True,
     )
 
+    # Number of quiz attempts completed by this user.
+    attempt_count = fields.Int(
+        dump_only=True,
+    )
+
 
 class AdminUserUpdateSchema(Schema):
     """
@@ -100,7 +105,7 @@ class AdminUserFilterSchema(Schema):
         allow_none=True,
     )
 
-    search = fields.Str(
+    q = fields.Str(
         allow_none=True,
         validate=validate.Length(max=120),
     )
@@ -135,6 +140,19 @@ class AdminStatsSchema(Schema):
     )
 
     total_questions = fields.Int(
+        dump_only=True,
+    )
+
+    # Phase 3: quiz activity and recent user activity statistics.
+    total_quiz_attempts = fields.Int(
+        dump_only=True,
+    )
+
+    new_users_7d = fields.Int(
+        dump_only=True,
+    )
+
+    logins_7d = fields.Int(
         dump_only=True,
     )
 
