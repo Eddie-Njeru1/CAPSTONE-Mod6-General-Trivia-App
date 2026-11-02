@@ -4,6 +4,7 @@ import { StrictMode } from 'react' // checks for potential issues during develop
 import { createRoot } from 'react-dom/client' // renders the React application
 import { BrowserRouter  } from 'react-router-dom' // enable client side routing
 import './styles/global.css' // for global styling 
+import './styles/categories.css' // for category grid and tile styling
 import App from './App.jsx' // main App component
 
 // Render the application inside the root HTML element

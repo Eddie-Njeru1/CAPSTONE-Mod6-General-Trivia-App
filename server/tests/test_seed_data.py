@@ -27,7 +27,11 @@ def build_categories(owner):
     categories = []
     for data in SEED_CATEGORIES:
         category = Category(
-            name=data["name"], description=data["description"], user=owner
+            name=data["name"],
+            description=data["description"],
+            icon=data["icon"],
+            color=data["color"],
+            user=owner,
         )
         for question_data in data["questions"]:
             Question(**question_data, category=category)
@@ -89,3 +93,59 @@ def test_seed_is_safe_to_run_twice(session):
     assert second_run == {"users": 0, "categories": 0, "questions": 0}
     assert User.query.count() == 1
     assert Question.query.count() == sum(len(d["questions"]) for d in SEED_CATEGORIES)
+
+
+# ---------- Phase 3: 8 x 10 content, icons and colours ----------
+
+
+def test_seed_has_at_least_8_categories():
+    assert len(SEED_CATEGORIES) >= 8
+
+
+@pytest.mark.parametrize("data", SEED_CATEGORIES, ids=lambda d: d["name"])
+def test_each_seed_category_has_at_least_10_questions(data):
+    assert len(data["questions"]) >= 10
+
+
+@pytest.mark.parametrize("data", SEED_CATEGORIES, ids=lambda d: d["name"])
+def test_each_seed_category_has_an_icon_and_colour(data):
+    # Passing them through the model checks the same rules users' categories follow.
+    category = Category(
+        name=data["name"], icon=data["icon"], color=data["color"]
+    )
+    assert category.icon == data["icon"]  # already clean, so unchanged
+    assert category.color == data["color"]
+
+
+def test_seed_icons_and_colours_are_unique():
+    icons = [data["icon"] for data in SEED_CATEGORIES]
+    colours = [data["color"] for data in SEED_CATEGORIES]
+    assert len(icons) == len(set(icons))
+    assert len(colours) == len(set(colours))
+
+
+def test_seed_fills_in_icon_and_colour_on_categories_from_before_phase_3(session):
+    # A database seeded in Phase 2: same demo user and category, no icon or colour.
+    seed_database()
+    first = SEED_CATEGORIES[0]
+    old = Category.query.filter_by(name=first["name"]).one()
+    old.icon = None
+    old.color = None
+    session.commit()
+
+    seed_database()
+
+    assert old.icon == first["icon"]
+    assert old.color == first["color"]
+
+
+def test_seed_never_overwrites_an_icon_someone_changed(session):
+    seed_database()
+    first = SEED_CATEGORIES[0]
+    category = Category.query.filter_by(name=first["name"]).one()
+    category.icon = "star"
+    session.commit()
+
+    seed_database()
+
+    assert category.icon == "star"

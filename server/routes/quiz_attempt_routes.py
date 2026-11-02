@@ -6,10 +6,9 @@
 #   GET  /api/leaderboard     top players by total points (public)
 
 from flask import Blueprint, jsonify, request
-from flask_jwt_extended import jwt_required
 
 from models import Category, QuizAttempt, db
-from utils.auth import get_current_user
+from utils.auth import active_user_required, get_current_user
 
 quiz_attempt_bp = Blueprint("quiz_attempts", __name__)
 
@@ -49,7 +48,7 @@ def serialize_attempt(attempt):
 
 
 @quiz_attempt_bp.post("/quiz-attempts")
-@jwt_required()
+@active_user_required
 def create_quiz_attempt():
     user = get_current_user()
     if user is None:
@@ -90,7 +89,7 @@ def create_quiz_attempt():
 
 
 @quiz_attempt_bp.get("/quiz-attempts")
-@jwt_required()
+@active_user_required
 def list_my_quiz_attempts():
     user = get_current_user()
     if user is None:

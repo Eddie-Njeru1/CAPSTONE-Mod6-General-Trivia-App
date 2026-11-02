@@ -58,7 +58,7 @@ describe('ScoreProvider saving rounds', () => {
 
     playRound()
 
-    expect(await screen.findByText('status:failed')).toBeInTheDocument()
+    expect(await screen.findByText('status:queued')).toBeInTheDocument() // Phase 3: kept in the sync queue
     expect(screen.getByText('rounds:1')).toBeInTheDocument()
   })
 

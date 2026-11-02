@@ -83,6 +83,8 @@ class QuizAttempt(db.Model):
 
         Ties are broken by fewer games played (more points per game),
         then alphabetically, so the order is always the same.
+        Deactivated accounts are left out (their rounds are kept, so they
+        come back if an admin turns the account on again).
         """
         from .user import User  # imported here to avoid a circular import
 
@@ -93,6 +95,7 @@ class QuizAttempt(db.Model):
         rows = (
             db.session.query(User.username, total_points, games_played, best_streak)
             .join(cls.user)
+            .filter(User.is_active.is_(True))  # deactivated players don't appear
             .group_by(User.id, User.username)
             .order_by(total_points.desc(), games_played.asc(), User.username.asc())
             .limit(limit)

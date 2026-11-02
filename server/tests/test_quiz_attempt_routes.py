@@ -210,3 +210,33 @@ def test_history_caps_per_page(client):
     headers = sign_up(client)
     response = client.get("/api/quiz-attempts?per_page=1000", headers=headers)
     assert response.get_json()["per_page"] == 50
+
+
+def test_leaderboard_hides_a_player_an_admin_deactivated(client):
+    honest = sign_up(client, "honest")
+    cheater = sign_up(client, "cheater")
+    client.post("/api/quiz-attempts", json=valid_round(points=50), headers=honest)
+    client.post("/api/quiz-attempts", json=valid_round(points=90), headers=cheater)
+    assert [row["username"] for row in client.get("/api/leaderboard").get_json()] == [
+        "cheater", "honest",
+    ]
+
+    # An admin deactivates the cheater through the admin API.
+    admin = User(username="boss", email="boss@example.com", role="admin")
+    admin.set_password("password123")
+    db.session.add(admin)
+    db.session.commit()
+    token = client.post(
+        "/api/auth/login", json={"email": "boss@example.com", "password": "password123"}
+    ).get_json()["access_token"]
+    cheater_id = User.query.filter_by(username="cheater").one().id
+
+    response = client.patch(
+        f"/api/admin/users/{cheater_id}",
+        json={"is_active": False},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == 200
+
+    board = client.get("/api/leaderboard").get_json()
+    assert [row["username"] for row in board] == ["honest"]
